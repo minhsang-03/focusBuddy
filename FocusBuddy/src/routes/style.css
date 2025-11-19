@@ -1,0 +1,15 @@
+body { background-color: #10141a; color: white; }
+
+.logo {
+    height: 2.25rem; /* default (mobile) */
+    width: auto;
+    display: block;
+  }
+
+  @media (min-width: 576px) {
+    .logo { height: 2.5rem; }
+  }
+
+  @media (min-width: 992px) {
+    .logo { height: 3rem; }
+  }
