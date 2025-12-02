@@ -1,5 +1,5 @@
 {
-  "_id": "ObjectId('...')",
+  _id: ObjectId('68fe4011f42000be814029ea'),
   "userId": "ObjectId('...')",
   "title": "Lernen – Mathe",
   "description": "Analysis Wiederholung",
