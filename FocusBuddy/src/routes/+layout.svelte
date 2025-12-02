@@ -14,7 +14,7 @@
   </div>
   <div class="container-fluid">
   <i class="bi bi-stopwatch"></i>
-    <a class="navbar-brand" href="/.">Startseite</a>
+    <a class="navbar-brand" href="/timer">Timer</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -25,6 +25,10 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/lernmethoden">Lernmethoden</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/timer">Timer</a>
+        </li>
 		 <li class="nav-item">
           <a class="nav-link" href="/to-do">To-Do</a>
         </li>
@@ -34,9 +38,9 @@
             Profil
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Einstellungen</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <li><a class="dropdown-item" href="/profil">Einstellungen</a></li>
+            <li><a class="dropdown-item" href="/profil">Another action</a></li>
+            <li><a class="dropdown-item" href="/profil">Something else here</a></li>
           </ul>
         </li>
       </ul>

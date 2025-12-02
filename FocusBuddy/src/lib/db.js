@@ -1,5 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { DB_URI } from '$env/static/private';
+import { get } from "svelte/store";
 
 // Minimal, focused DB module to work with Users documents of the shape:
 // { _id: ObjectId, username, email, passwordHash, createdAt }
@@ -19,7 +20,7 @@ function normalizeUser(doc) {
 }
 
 /** Get all users
- * @returns {Promise<object[]>}
+
  */
 export async function getUsers() {
   const collection = db.collection('users');
