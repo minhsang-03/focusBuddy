@@ -1,7 +1,8 @@
 <script>
+  import { enhance } from '$app/forms';
   import { onMount } from 'svelte';
 
-  /** @type {{ activities: Array<{_id: string, title: string, description: string, tags?: string[], method?: string, durationSeconds?: number, startTime?: Date, endTime?: Date, createdAt?: Date}> }} */
+  /** @type {{ activities: Array<{_id: string, title: string, description: string, tags?: string[], method?: string, durationSeconds?: number, startTime?: Date, endTime?: Date, createdAt?: Date}>, user: any }} */
   export let data;
 
   let viewMode = 'liste'; // 'liste' or 'diagramme'
@@ -48,6 +49,12 @@
   <h1>Aktivitäten</h1>
   <p class="subtitle">Überblick über Ihre getrackte Zeit</p>
 
+  {#if !data.user}
+    <div class="login-message">
+      <p>Bitte melden Sie sich an, um Ihre Aktivitäten zu sehen.</p>
+      <a href="/profil" class="btn-login-link">Zur Anmeldung</a>
+    </div>
+  {:else}
   <!-- Total time display -->
   <div class="total-time">
     <div class="time-icon">⏱️</div>
@@ -108,6 +115,7 @@
     <div class="diagram-view">
       <p>Diagramme-Ansicht (In Entwicklung)</p>
     </div>
+  {/if}
   {/if}
 </div>
 
@@ -293,6 +301,36 @@
     padding: 2rem;
     text-align: center;
     color: #999;
+  }
+
+  /* Login message */
+  .login-message {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .login-message p {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1rem;
+  }
+
+  .btn-login-link {
+    display: inline-block;
+    background: #0b1220;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+
+  .btn-login-link:hover {
+    background: #1a1a1a;
   }
 
   @media (max-width: 600px) {

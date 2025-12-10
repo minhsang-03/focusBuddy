@@ -40,6 +40,16 @@ export async function getUser(id) {
   return normalizeUser(doc);
 }
 
+/** Get user by email
+ * @param {string} email
+ * @returns {Promise<object|null>}
+ */
+export async function getUserByEmail(email) {
+  const collection = db.collection('users');
+  const doc = await collection.findOne({ email });
+  return normalizeUser(doc);
+}
+
 /** Create a new user
  * @param {{username:string,email:string,passwordHash:string}} data
  * @returns {Promise<string>} inserted id
@@ -461,6 +471,7 @@ export async function deleteHabit(id) {
 export default {
   getUsers,
   getUser,
+  getUserByEmail,
   createUser,
   updateUser,
   deleteUser,
