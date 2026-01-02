@@ -11,12 +11,55 @@ await client.connect();
 const db = client.db('FocusBuddy');
 
 /** @param {{_id:any}|null} doc */
+function normalizeTag(doc) {
+  if (!doc) return null;
+  return {
+    ...doc,
+    _id: doc._id.toString(),
+  };
+}
+
+/** @param {{_id:any}|null} doc */
 function normalizeUser(doc) {
   if (!doc) return null;
   return {
     ...doc,
     _id: doc._id.toString(),
   };
+}
+
+/** Get all tags
+ */
+export async function getTags() {
+  const collection = db.collection('tags');
+  const docs = await collection.find({}).toArray();
+  const tags = docs.map(normalizeTag).filter((t) => t !== null);
+  return /** @type {object[]} */ (tags);
+}
+
+/** Get one tag by id
+ * @param {string} id
+ * @returns {Promise<object|null>}
+ */
+export async function getTag(id) {
+  if (!ObjectId.isValid(id)) return null;
+  const collection = db.collection('tags');
+  const doc = await collection.findOne({ _id: new ObjectId(id) });
+  return normalizeTag(doc);
+}
+
+/** Create a new tag
+ * @param {{name:string}} data
+ * @returns {Promise<string>} inserted id
+ */
+export async function createTag(data) {
+  const collection = db.collection('tags');
+  const doc = {
+    name: data.name || '',
+    createdAt: new Date(),
+  };
+  const result = await collection.insertOne(doc);
+  return result.insertedId.toString();
 }
 
 /** Get all users
@@ -213,7 +256,7 @@ export async function createActivity(data) {
   const doc = {
     title: data.title || '',
     description: data.description || '',
-    tags: Array.isArray(data.tags) ? data.tags : data.tags ? [data.tags] : [],
+    tagIds: Array.isArray(data.tagIds) ? data.tagIds.map(id => ObjectId.isValid(id) ? new ObjectId(id) : null).filter(id => id) : [],
     method: data.method || '',
     durationSeconds: data.durationSeconds || 0,
     startTime: data.startTime ? new Date(data.startTime) : undefined,
@@ -249,6 +292,21 @@ export async function deleteActivity(id) {
   const collection = db.collection('activities');
   const result = await collection.deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount ? id : null;
+}
+
+/** Get all unique tags from activities
+ * @returns {Promise<string[]>}
+ */
+export async function getAllTags() {
+  const collection = db.collection('activities');
+  const docs = await collection.find({}).toArray();
+  const tagsSet = new Set();
+  docs.forEach(doc => {
+    if (doc.tags && Array.isArray(doc.tags)) {
+      doc.tags.forEach(tag => tagsSet.add(tag));
+    }
+  });
+  return Array.from(tagsSet).sort();
 }
 
 // -----------------------------
@@ -480,6 +538,10 @@ export default {
   createTodo,
   updateTodo,
   deleteTodo,
+  getTags,
+  getTag,
+  createTag,
+  getAllTags,
   getActivities,
   getActivity,
   createActivity,

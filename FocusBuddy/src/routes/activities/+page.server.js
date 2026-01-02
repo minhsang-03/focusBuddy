@@ -1,4 +1,4 @@
-import { getActivities } from '$lib/db.js';
+import { getActivities, deleteActivity } from '$lib/db.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ parent }) {
@@ -14,3 +14,15 @@ export async function load({ parent }) {
     user
   };
 }
+
+/** @type {import('./$types').Actions} */
+export const actions = {
+  deleteActivity: async ({ request }) => {
+    const data = await request.formData();
+    const id = data.get('id');
+    if (id) {
+      await deleteActivity(id);
+    }
+    return { success: true };
+  },
+};

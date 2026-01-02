@@ -31,17 +31,18 @@
     return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`;
   }
 
-  // Format date to DD.MM.YYYY, HH:MM format
-  /** @param {string|Date|undefined} dateString */
-  function formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${day}.${month}.${year}, ${hours}:${minutes}`;
+  // Delete activity
+  async function deleteActivityItem(id) {
+    if (confirm('Möchten Sie diese Aktivität wirklich löschen?')) {
+      const formData = new FormData();
+      formData.append('id', id);
+      await fetch('/activities?/deleteActivity', {
+        method: 'POST',
+        body: formData,
+      });
+      // Reload page or update list
+      location.reload();
+    }
   }
 </script>
 
@@ -92,7 +93,7 @@
               <h3>{activity.title || 'Ohne Titel'}</h3>
               <div class="activity-actions">
                 <button class="action-btn edit-btn" title="Bearbeiten">✎</button>
-                <button class="action-btn delete-btn" title="Löschen">🗑️</button>
+                <button class="action-btn delete-btn" title="Löschen" on:click={() => deleteActivityItem(activity._id)}>🗑️</button>
               </div>
             </div>
             <div class="activity-meta">

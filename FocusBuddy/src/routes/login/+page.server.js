@@ -35,7 +35,7 @@ export const actions = {
       }
 
       // Get the stored password hash
-      const storedPassword = /** @type {any} */ (user).password || '';
+      const storedPassword = /** @type {any} */ (user).passwordHash || '';
 
       if (!storedPassword) {
         return { success: false, error: 'Email oder Passwort ist falsch' };
@@ -50,7 +50,8 @@ export const actions = {
 
       // Hash the provided password with the stored salt
       const crypto = await import('crypto');
-      const hashedPassword = crypto.scryptSync(password, salt, 32).toString('hex');
+      const key = crypto.scryptSync(password, salt, 64);
+      const hashedPassword = Buffer.from(key).toString('hex');
 
       // Compare hashes
       if (hash !== hashedPassword) {
