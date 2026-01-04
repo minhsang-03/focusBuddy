@@ -225,6 +225,7 @@ function normalizeActivity(doc) {
     ...doc,
     _id: doc._id.toString(),
     userId: doc.userId ? doc.userId.toString() : undefined,
+    tags: Array.isArray(doc.tags) ? doc.tags.map((/** @type {string|import('mongodb').ObjectId} */ tag) => tag?.toString()) : [],
     startTime: doc.startTime ? new Date(doc.startTime) : undefined,
     endTime: doc.endTime ? new Date(doc.endTime) : undefined,
     createdAt: doc.createdAt ? new Date(doc.createdAt) : undefined,
@@ -256,7 +257,7 @@ export async function createActivity(data) {
   const doc = {
     title: data.title || '',
     description: data.description || '',
-    tagIds: Array.isArray(data.tagIds) ? data.tagIds.map(id => ObjectId.isValid(id) ? new ObjectId(id) : null).filter(id => id) : [],
+    tags: Array.isArray(data.tags) ? data.tags.map((id /** @type {string} */) => ObjectId.isValid(id) ? new ObjectId(id) : null).filter(id => id) : [],
     method: data.method || '',
     durationSeconds: data.durationSeconds || 0,
     startTime: data.startTime ? new Date(data.startTime) : undefined,

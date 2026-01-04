@@ -32,6 +32,9 @@
   }
 
   // Delete activity
+  /**
+   * @param {string} id
+   */
   async function deleteActivityItem(id) {
     if (confirm('Möchten Sie diese Aktivität wirklich löschen?')) {
       const formData = new FormData();
@@ -97,7 +100,7 @@
               </div>
             </div>
             <div class="activity-meta">
-              <span class="meta-item">⏰ {formatDate(activity.createdAt)}</span>
+              <span class="meta-item">⏰ {formatTime(activity.createdAt)}</span>
             </div>
             {#if activity.tags && activity.tags.length > 0}
               <div class="activity-tags">

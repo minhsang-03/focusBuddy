@@ -20,8 +20,10 @@ export const actions = {
   deleteActivity: async ({ request }) => {
     const data = await request.formData();
     const id = data.get('id');
-    if (id) {
+    if (typeof id === 'string' && id) {
       await deleteActivity(id);
+    } else if (id && typeof id === 'object' && 'toString' in id) {
+      await deleteActivity(id.toString());
     }
     return { success: true };
   },
