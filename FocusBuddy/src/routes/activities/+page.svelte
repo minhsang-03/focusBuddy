@@ -47,6 +47,22 @@
       location.reload();
     }
   }
+
+  /**
+   * @param {Date|string|number} date
+   * @returns {string}
+   */
+  function formatDate(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('de-DE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
 </script>
 
 <div class="activities-container">
@@ -100,7 +116,7 @@
               </div>
             </div>
             <div class="activity-meta">
-              <span class="meta-item">⏰ {formatTime(activity.createdAt)}</span>
+              <span class="meta-item">⏰ {activity.createdAt ? formatDate(activity.createdAt) : ''}</span>
             </div>
             {#if activity.tags && activity.tags.length > 0}
               <div class="activity-tags">

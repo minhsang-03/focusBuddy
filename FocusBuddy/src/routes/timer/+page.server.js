@@ -32,7 +32,7 @@ export const actions = {
       await createActivity({
         title,
         description,
-        tags, // <---
+        tags,
         method,
         durationSeconds,
         startTime,

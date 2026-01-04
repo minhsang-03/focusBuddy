@@ -5,10 +5,16 @@ export async function load({ parent }) {
   const parentData = await parent();
   const user = /** @type {any} */ (parentData).user;
   const allActivities = await getActivities();
-  
+
   // Filter activities by current user's ID
-  const activities = allActivities.filter(a => /** @type {any} */ (a).userId === user?._id);
-  
+  let activities = allActivities.filter(a => /** @type {any} */ (a).userId === user?._id);
+
+  // Ensure tags are string array (not ObjectId)
+  activities = activities.map(a => ({
+    ...a,
+    tags: Array.isArray(a.tags) ? a.tags.map(tag => typeof tag === 'string' ? tag : tag?.toString()) : []
+  }));
+
   return {
     activities,
     user

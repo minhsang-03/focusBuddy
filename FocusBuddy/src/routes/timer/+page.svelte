@@ -19,7 +19,10 @@
                 {#each selectedTags as tagId (tagId)}
                   {#if tagsMap.get(tagId)}
                     <span class="tag-chip-selected">
-                      {#if tagsMap.get(tagId)}{tagsMap.get(tagId).name}{/if}
+                      {#if tagsMap.get(tagId)}
+                        {@const tag = tagsMap.get(tagId)}
+                        {tag ? tag.name : ''}
+                      {/if}
                       <button type="button" class="btn-close btn-sm ms-1" aria-label="Entfernen" on:click={() => removeTag(tagId)} tabindex="0"></button>
                     </span>
                   {/if}
@@ -290,7 +293,10 @@
                 {#each selectedTags as tagId (tagId)}
                   {#if tagsMap.get(tagId)}
                     <span class="tag-chip-selected">
-                      {#if tagsMap.get(tagId)}{tagsMap.get(tagId).name}{/if}
+                      {#if tagsMap.get(tagId)}
+                        {@const tag = tagsMap.get(tagId)}
+                        {tag ? tag.name : ''}
+                      {/if}
                       <button type="button" class="btn-close btn-sm ms-1" aria-label="Entfernen" on:click={() => removeTag(tagId)}></button>
                     </span>
                   {/if}
