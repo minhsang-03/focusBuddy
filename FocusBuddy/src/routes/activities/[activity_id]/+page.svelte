@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   export let data;
-  export let form = undefined;
+  /** @type {import('./$types').ActionData | null} */
+  export let form = null;
   let activity = data.activity;
   let title = activity.title || '';
   let description = activity.description || '';
@@ -26,7 +27,7 @@
       <input class="activity-input" name="title" bind:value={title} required />
     </label>
     <label class="activity-label">Beschreibung:
-      <textarea class="activity-input" name="description" bind:value={description} rows="3" />
+      <textarea class="activity-input" name="description" bind:value={description} rows="3"></textarea>
     </label>
     <label class="activity-label">Methode:
       <input class="activity-input" name="method" bind:value={method} />

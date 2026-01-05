@@ -252,12 +252,29 @@ export async function getActivity(id) {
 /** Create activity
  * @param {any} data
  */
+/**
+ * Create activity
+ * @param {any} data
+ * @returns {Promise<string>}
+ */
 export async function createActivity(data) {
   const collection = db.collection('activities');
   const doc = {
     title: data.title || '',
     description: data.description || '',
-    tags: Array.isArray(data.tags) ? data.tags.map((id /** @type {string} */) => ObjectId.isValid(id) ? new ObjectId(id) : null).filter(id => id) : [],
+    tags: Array.isArray(data.tags)
+      ? data.tags.map(
+          /**
+           * @param {string} id
+           */
+          function (id) { return ObjectId.isValid(id) ? new ObjectId(id) : null; }
+        ).filter(
+          /**
+           * @param {string|import('mongodb').ObjectId|null} id
+           */
+          function (id) { return id; }
+        )
+      : [],
     method: data.method || '',
     durationSeconds: data.durationSeconds || 0,
     startTime: data.startTime ? new Date(data.startTime) : undefined,

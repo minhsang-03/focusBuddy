@@ -1,4 +1,15 @@
 <script>
+  /**
+   * Returns tag name if tag is object, else string
+   * @param {any} tag
+   * @returns {string}
+   */
+  function getTagName(tag) {
+    if (typeof tag === 'object' && tag !== null && 'name' in tag) {
+      return tag.name;
+    }
+    return String(tag);
+  }
   import { enhance } from '$app/forms';
   import { onMount } from 'svelte';
 
@@ -121,7 +132,7 @@
             {#if activity.tags && activity.tags.length > 0}
               <div class="activity-tags">
                 {#each activity.tags as tag}
-                  <span class="tag">{tag.name}</span>
+                  <span class="tag">{getTagName(tag)}</span>
                 {/each}
               </div>
             {/if}
