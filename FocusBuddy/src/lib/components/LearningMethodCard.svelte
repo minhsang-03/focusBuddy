@@ -1,4 +1,5 @@
 <script>
+  /** @type {{ _id: string, name: string, description?: string, defaultWorkMinutes?: number, defaultBreakMinutes?: number, icon?: string, iconColor?: string, steps?: string[], notificationText?: string }} */
   export let method;
 </script>
 

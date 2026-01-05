@@ -1,6 +1,4 @@
 <script>
-  import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   export let data;
   /** @type {import('./$types').ActionData | null} */
   export let form = null;
@@ -11,11 +9,6 @@
   let durationSeconds = activity.durationSeconds || 0;
   let startTime = activity.startTime ? new Date(activity.startTime).toISOString().slice(0,16) : '';
   let endTime = activity.endTime ? new Date(activity.endTime).toISOString().slice(0,16) : '';
-  let tags = activity.tags || [];
-  let error = '';
-
-
-  // Keine eigene save()-Funktion mehr nötig, alles läuft über das native SvelteKit-Formular
 </script>
 
 

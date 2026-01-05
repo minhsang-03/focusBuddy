@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
-import { getUser, getUserByEmail } from '$lib/db.js';
-import { createHash } from 'crypto';
+import { getUserByEmail } from '$lib/db.js';
+import { scryptSync } from 'crypto';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ parent }) {
@@ -9,7 +9,7 @@ export async function load({ parent }) {
 
   // If already logged in, redirect to timer
   if (user) {
-    redirect(302, '/timer');
+    throw redirect(302, '/timer');
   }
 
   return {};
@@ -49,8 +49,7 @@ export const actions = {
       }
 
       // Hash the provided password with the stored salt
-      const crypto = await import('crypto');
-      const key = crypto.scryptSync(password, salt, 64);
+      const key = scryptSync(password, salt, 64);
       const hashedPassword = Buffer.from(key).toString('hex');
 
       // Compare hashes
@@ -65,7 +64,7 @@ export const actions = {
         maxAge: 60 * 60 * 24 * 30 // 30 days
       });
 
-      redirect(302, '/timer');
+      throw redirect(302, '/timer');
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: 'Ein Fehler ist aufgetreten' };

@@ -1,10 +1,9 @@
-import { getActivity, updateActivity, getTags } from '$lib/db.js';
+import { getActivity, updateActivity } from '$lib/db.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
   const activity = await getActivity(params.activity_id);
-  const tags = await getTags();
-  return { activity, tags };
+  return { activity };
 }
 
 /** @type {import('./$types').Actions} */

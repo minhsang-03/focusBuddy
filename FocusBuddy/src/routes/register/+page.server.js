@@ -21,7 +21,7 @@ export const actions = {
 
     // check if email already exists
     const users = await getUsers();
-    const existing = users.find((u) => (u.email || '').toLowerCase() === email);
+    const existing = users.find((u) => ((/** @type {{email?: string}} */ (u)).email || '').toLowerCase() === email);
     if (existing) {
       return fail(400, { error: 'E-Mail ist bereits registriert' });
     }
@@ -38,7 +38,7 @@ export const actions = {
 
     if (!user) return fail(500, { error: 'Konnte Nutzer nicht anlegen' });
 
-    cookies.set('userId', user._id, { path: '/', httpOnly: true });
+    cookies.set('userId', ((/** @type {{_id?: string}} */ (user))._id || ''), { path: '/', httpOnly: true });
 
     throw redirect(302, '/timer');
   }

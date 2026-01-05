@@ -1,5 +1,6 @@
-import { getUser, createUser, updateUser, deleteUser } from '$lib/db.js';
+import { getUser, updateUser, deleteUser } from '$lib/db.js';
 import { redirect, fail } from '@sveltejs/kit';
+import { randomBytes, scryptSync } from 'crypto';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
@@ -72,10 +73,31 @@ export const actions = {
     }
 
     try {
-      // TODO: Hash password before storing
+      // Verify current password
+      const user = await getUser(userId);
+      if (!user) return fail(404, { error: 'User not found' });
+      
+      const storedPassword = /** @type {any} */ (user).passwordHash || '';
+      if (storedPassword) {
+        const [salt, hash] = storedPassword.split(':');
+        if (salt && hash) {
+          const key = scryptSync(String(currentPassword), salt, 64);
+          const hashedInput = Buffer.from(key).toString('hex');
+          if (hash !== hashedInput) {
+            return fail(400, { error: 'Current password is incorrect' });
+          }
+        }
+      }
+
+      // Hash new password
+      const newSalt = randomBytes(16).toString('hex');
+      const newKey = scryptSync(String(newPassword), newSalt, 64);
+      const newHash = Buffer.from(newKey).toString('hex');
+      const newStored = `${newSalt}:${newHash}`;
+
       await updateUser({
         _id: userId,
-        password: newPassword
+        passwordHash: newStored
       });
 
       return { success: true, message: 'Password updated successfully' };

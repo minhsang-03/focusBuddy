@@ -1,55 +1,4 @@
-{#if showSaveModal}
-  <div class="modal-backdrop fade show" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1040;background:rgba(0,0,0,0.5);"></div>
-  <div class="modal fade show" tabindex="-1" style="display:block;z-index:1050;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modal-title">Aktivität speichern</h5>
-          <button type="button" class="btn-close" aria-label="Close" on:click={closeModal}></button>
-        </div>
-        <form on:submit|preventDefault={saveSession} autocomplete="off">
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="session-title" class="form-label">Titel *</label>
-              <input id="session-title" type="text" class="form-control" bind:value={sessionTitle} placeholder="z.B. Mathe lernen" required />
-            </div>
-            <div class="mb-3">
-              <span class="form-label">Tags</span>
-              <div class="mb-2" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                {#each selectedTags as tagId (tagId)}
-                  {#if tagsMap.get(tagId)}
-                    <span class="tag-chip-selected">
-                      {#if tagsMap.get(tagId)}
-                        {@const tag = tagsMap.get(tagId)}
-                        {tag ? tag.name : ''}
-                      {/if}
-                      <button type="button" class="btn-close btn-sm ms-1" aria-label="Entfernen" on:click={() => removeTag(tagId)} tabindex="0"></button>
-                    </span>
-                  {/if}
-                {/each}
-              </div>
-              <div class="mb-2" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
-                {#each data.tags as tag (tag._id)}
-                  {#if !selectedTags.includes(tag._id)}
-                    <button type="button" class="btn btn-outline-secondary btn-sm tag-chip-unselected" on:click={() => addTag(tag._id)} tabindex="0">+ {tag.name}</button>
-                  {/if}
-                {/each}
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="session-description" class="form-label">Beschreibung</label>
-              <textarea id="session-description" class="form-control" bind:value={sessionDescription} placeholder="Was haben Sie gemacht?" rows="3"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" on:click={closeModal} tabindex="0">Abbrechen</button>
-            <button type="submit" class="btn btn-primary" tabindex="0">Speichern</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-{/if}<script>
+<script>
   import { onMount } from 'svelte';
 
   /** @type {{ learningMethods: Array<{_id: string, name: string, defaultWorkMinutes?: number, defaultBreakMinutes?: number}>, tags: Array<{_id: string, name: string}> }} */
@@ -103,7 +52,6 @@
   function endSession() {
     isRunning = false;
     showSaveModal = true;
-    console.log('Modal should be visible now:', showSaveModal);
   }
 
   // Close modal
