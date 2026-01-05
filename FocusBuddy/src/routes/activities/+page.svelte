@@ -111,7 +111,7 @@
             <div class="activity-header">
               <h3>{activity.title || 'Ohne Titel'}</h3>
               <div class="activity-actions">
-                <button class="action-btn edit-btn" title="Bearbeiten">✎</button>
+                <a class="action-btn edit-btn" title="Bearbeiten" href="/activities/{activity._id}">✎</a>
                 <button class="action-btn delete-btn" title="Löschen" on:click={() => deleteActivityItem(activity._id)}>🗑️</button>
               </div>
             </div>
@@ -121,7 +121,7 @@
             {#if activity.tags && activity.tags.length > 0}
               <div class="activity-tags">
                 {#each activity.tags as tag}
-                  <span class="tag">{tag}</span>
+                  <span class="tag">{tag.name}</span>
                 {/each}
               </div>
             {/if}
@@ -344,7 +344,7 @@
     background: #0b1220;
     color: white;
     padding: 0.75rem 1.5rem;
-    border-radius: 6px;
+    border-radius: 6px;    
     text-decoration: none;
     transition: background 0.3s;
   }

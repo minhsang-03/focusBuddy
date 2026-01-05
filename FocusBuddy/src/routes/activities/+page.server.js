@@ -5,14 +5,17 @@ export async function load({ parent }) {
   const parentData = await parent();
   const user = /** @type {any} */ (parentData).user;
   const allActivities = await getActivities();
+  const allTags = await import('$lib/db.js').then(mod => mod.getTags());
 
   // Filter activities by current user's ID
   let activities = allActivities.filter(a => /** @type {any} */ (a).userId === user?._id);
 
-  // Ensure tags are string array (not ObjectId)
+  // Populate tags with full tag objects
   activities = activities.map(a => ({
     ...a,
-    tags: Array.isArray(a.tags) ? a.tags.map(tag => typeof tag === 'string' ? tag : tag?.toString()) : []
+    tags: Array.isArray(a.tags)
+      ? a.tags.map(tagId => allTags.find(t => t._id === tagId) || { _id: tagId, name: tagId })
+      : []
   }));
 
   return {
