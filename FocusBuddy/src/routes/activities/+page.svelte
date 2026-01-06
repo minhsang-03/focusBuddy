@@ -13,6 +13,11 @@
   import { enhance } from '$app/forms';
   import { onMount } from 'svelte';
 
+  // Notification state
+  let showNotification = false;
+  let notificationType = 'success'; // 'success' or 'error'
+  let notificationMessage = '';
+
   /** @type {{ activities: Array<{_id: string, title: string, description: string, tags?: string[], method?: string, durationSeconds?: number, startTime?: Date, endTime?: Date, createdAt?: Date}>, user: any }} */
   export let data;
 
@@ -48,14 +53,37 @@
    */
   async function deleteActivityItem(id) {
     if (confirm('Möchten Sie diese Aktivität wirklich löschen?')) {
-      const formData = new FormData();
-      formData.append('id', id);
-      await fetch('/activities?/deleteActivity', {
-        method: 'POST',
-        body: formData,
-      });
-      // Reload page or update list
-      location.reload();
+      try {
+        const formData = new FormData();
+        formData.append('id', id);
+        const response = await fetch('/activities?/deleteActivity', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (response.ok) {
+          // Remove from local list
+          activities = activities.filter(a => a._id !== id);
+          calculateTotalTime();
+          
+          // Show success notification
+          showNotification = true;
+          notificationType = 'success';
+          notificationMessage = 'Aktivität erfolgreich gelöscht!';
+          setTimeout(() => { showNotification = false; }, 3000);
+        } else {
+          showNotification = true;
+          notificationType = 'error';
+          notificationMessage = 'Fehler beim Löschen der Aktivität';
+          setTimeout(() => { showNotification = false; }, 5000);
+        }
+      } catch (error) {
+        console.error('Fehler:', error);
+        showNotification = true;
+        notificationType = 'error';
+        notificationMessage = 'Netzwerkfehler beim Löschen';
+        setTimeout(() => { showNotification = false; }, 5000);
+      }
     }
   }
 
@@ -75,6 +103,21 @@
     });
   }
 </script>
+
+<!-- Notification Toast -->
+{#if showNotification}
+  <div class="notification-container">
+    <div class="alert {notificationType === 'success' ? 'alert-success' : 'alert-danger'} alert-dismissible fade show" role="alert">
+      {#if notificationType === 'success'}
+        <strong>✓</strong>
+      {:else}
+        <strong>✕</strong>
+      {/if}
+      {notificationMessage}
+      <button type="button" class="btn-close" aria-label="Close" on:click={() => showNotification = false}></button>
+    </div>
+  </div>
+{/if}
 
 <div class="activities-container">
   <h1>Aktivitäten</h1>
@@ -151,6 +194,67 @@
 </div>
 
 <style>
+  /* Notification styles */
+  .notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    min-width: 300px;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+  
+  .alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+  
+  .btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    margin-left: auto;
+    opacity: 0.5;
+    padding: 0;
+    line-height: 1;
+  }
+  
+  .btn-close:hover {
+    opacity: 1;
+  }
+  
+  .btn-close::before {
+    content: '×';
+  }
+
   .activities-container {
     max-width: 960px;
     margin: 0 auto;
@@ -332,36 +436,6 @@
     padding: 2rem;
     text-align: center;
     color: #999;
-  }
-
-  /* Login message */
-  .login-message {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .login-message p {
-    margin: 0 0 1rem 0;
-    color: #333;
-    font-size: 1rem;
-  }
-
-  .btn-login-link {
-    display: inline-block;
-    background: #0b1220;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;    
-    text-decoration: none;
-    transition: background 0.3s;
-  }
-
-  .btn-login-link:hover {
-    background: #1a1a1a;
   }
 
   @media (max-width: 600px) {

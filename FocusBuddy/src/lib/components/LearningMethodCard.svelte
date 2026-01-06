@@ -6,7 +6,7 @@
 <div class="lm-card">
   <div class="lm-icon">
     {#if method.icon}
-      <i class="bi {method.icon}" style="color: {method.iconColor || '#6b7280'}; font-size: 2rem;"></i>
+      <i class="bi {method.icon} lm-icon-custom" style:color={method.iconColor || '#6b7280'}></i>
     {:else}
       📘
     {/if}
@@ -56,6 +56,10 @@
   .lm-icon {
     text-align: center;
     margin-bottom: 1rem;
+    font-size: 2rem;
+  }
+
+  .lm-icon-custom {
     font-size: 2rem;
   }
 

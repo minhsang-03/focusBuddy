@@ -1,9 +1,11 @@
-import { getActivity, updateActivity } from '$lib/db.js';
+import { getActivity, updateActivity, getTags, getLearningMethods } from '$lib/db.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {
   const activity = await getActivity(params.activity_id);
-  return { activity };
+  const tags = await getTags();
+  const learningMethods = await getLearningMethods();
+  return { activity, tags, learningMethods };
 }
 
 /** @type {import('./$types').Actions} */

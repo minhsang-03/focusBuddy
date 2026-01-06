@@ -28,22 +28,6 @@
   /**
    * @param {string} priority
    */
-  function getPriorityColor(priority) {
-    switch (priority) {
-      case 'high':
-        return '#d32f2f';
-      case 'medium':
-        return '#f57c00';
-      case 'low':
-        return '#388e3c';
-      default:
-        return '#1976d2';
-    }
-  }
-
-  /**
-   * @param {string} priority
-   */
   function getPriorityLabel(priority) {
     switch (priority) {
       case 'high':
@@ -157,7 +141,7 @@
               <h3>{todo.text}</h3>
               <div class="todo-meta">
                 {#if todo.priority}
-                  <span class="priority-badge" style="background-color: {getPriorityColor(todo.priority)}">
+                  <span class="priority-badge priority-{todo.priority}">
                     {getPriorityLabel(todo.priority)}
                   </span>
                 {/if}
@@ -407,6 +391,22 @@
     color: white;
   }
 
+  .priority-badge.priority-high {
+    background-color: #d32f2f;
+  }
+
+  .priority-badge.priority-medium {
+    background-color: #f57c00;
+  }
+
+  .priority-badge.priority-low {
+    background-color: #388e3c;
+  }
+
+  .priority-badge.priority-normal {
+    background-color: #1976d2;
+  }
+
   .date-badge {
     background: #1976d2;
   }
@@ -438,36 +438,6 @@
     padding: 1rem;
     background: #f9f9f9;
     border-radius: 8px;
-  }
-
-  /* Login message */
-  .login-message {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .login-message p {
-    margin: 0 0 1rem 0;
-    color: #333;
-    font-size: 1rem;
-  }
-
-  .btn-login-link {
-    display: inline-block;
-    background: #0b1220;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: background 0.3s;
-  }
-
-  .btn-login-link:hover {
-    background: #1a1a1a;
   }
 
   @media (max-width: 600px) {

@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
 
   /** @type {{ learningMethods: Array<{_id: string, name: string, defaultWorkMinutes?: number, defaultBreakMinutes?: number}>, tags: Array<{_id: string, name: string}> }} */
   export let data;
@@ -10,6 +11,7 @@
   let selectedMode = 'Stopuhr'; // Stopuhr or Timer modes
   let inputMinutes = 0;
   let inputSeconds = 0;
+  let timerStartSeconds = 0; // Ursprüngliche Timer-Zeit für Berechnung der gelernten Zeit
 
   // Modal variables
   let showSaveModal = false;
@@ -19,6 +21,11 @@
   let selectedTags = [];
   /** @type {Date|null} */
   let sessionStartTime = null;
+  
+  // Notification variables
+  let showNotification = false;
+  let notificationType = 'success'; // 'success' oder 'error'
+  let notificationMessage = '';
 
   // Map für schnellen Zugriff auf Tag-Namen
   $: tagsMap = new Map(data.tags.map(tag => [tag._id, tag]));
@@ -39,6 +46,10 @@
     }
     if (!isRunning) {
       sessionStartTime = new Date();
+      // Speichere ursprüngliche Timer-Zeit für Berechnung der gelernten Zeit
+      if (selectedMode === 'Timer') {
+        timerStartSeconds = timeSeconds;
+      }
     }
     isRunning = true;
   }
@@ -64,12 +75,21 @@
 
   // Save session
   async function saveSession() {
+    // Berechne die tatsächlich gelernte Zeit
+    let learnedSeconds = timeSeconds;
+    if (selectedMode === 'Timer') {
+      // Bei Timer: ursprüngliche Zeit minus verbleibende Zeit = gelernte Zeit
+      learnedSeconds = timerStartSeconds - timeSeconds;
+    }
+    // Sicherstellen, dass die Zeit nicht negativ ist
+    if (learnedSeconds < 0) learnedSeconds = 0;
+
     const formData = new FormData();
     formData.append('title', sessionTitle);
     formData.append('description', sessionDescription);
-    selectedTags.forEach(tagId => formData.append('tags', tagId)); // <---
+    selectedTags.forEach(tagId => formData.append('tags', tagId));
     formData.append('method', selectedMethod);
-    formData.append('durationSeconds', timeSeconds.toString());
+    formData.append('durationSeconds', learnedSeconds.toString());
     if (sessionStartTime) {
       formData.append('startTime', sessionStartTime.toISOString());
     }
@@ -80,17 +100,69 @@
         method: 'POST',
         body: formData,
       });
-      const result = await response.json();
-      if (result.success) {
-        alert('Session gespeichert!');
-        resetTimer();
-        closeModal();
+      
+      // Prüfe HTTP Status zuerst
+      if (response.ok) {
+        // Bei SvelteKit Actions ist ein 200 OK ein Erfolg
+        // Versuche die Response zu parsen
+        let success = true;
+        let errorMessage = '';
+        
+        try {
+          const result = await response.json();
+          console.log('Server response:', result); // Debug
+          
+          // SvelteKit Action Response Format
+          if (result.type === 'success' || result.type === 'redirect') {
+            success = true;
+          } else if (result.type === 'failure' || result.type === 'error') {
+            success = false;
+            // Versuche Fehlermeldung aus data zu extrahieren
+            if (result.data) {
+              errorMessage = result.data.error || '';
+            }
+          } else if (result.success !== undefined) {
+            // Direktes Response-Objekt
+            success = result.success;
+            errorMessage = result.error || '';
+          }
+        } catch (parseError) {
+          // JSON parsing fehlgeschlagen, aber Response war OK
+          console.log('Response parse info:', parseError);
+          success = true;
+        }
+        
+        if (success) {
+          showNotification = true;
+          notificationType = 'success';
+          notificationMessage = 'Aktivität erfolgreich gespeichert!';
+          setTimeout(() => { showNotification = false; }, 3000);
+          resetTimer();
+          closeModal();
+        } else if (errorMessage === 'Nicht eingeloggt') {
+          showNotification = true;
+          notificationType = 'error';
+          notificationMessage = 'Bitte melden Sie sich an, um Aktivitäten zu speichern.';
+          setTimeout(() => { showNotification = false; }, 5000);
+        } else {
+          showNotification = true;
+          notificationType = 'error';
+          notificationMessage = 'Fehler beim Speichern: ' + (errorMessage || 'Unbekannter Fehler');
+          setTimeout(() => { showNotification = false; }, 5000);
+        }
       } else {
-        alert('Fehler beim Speichern: ' + (result.error || 'Unbekannter Fehler'));
+        // HTTP Error
+        showNotification = true;
+        notificationType = 'error';
+        notificationMessage = 'Server-Fehler: ' + response.status;
+        setTimeout(() => { showNotification = false; }, 5000);
       }
     } catch (error) {
       console.error('Fehler:', error);
-      alert('Fehler beim Speichern der Session');
+      showNotification = true;
+      notificationType = 'error';
+      notificationMessage = 'Netzwerkfehler beim Speichern der Session';
+      setTimeout(() => { showNotification = false; }, 5000);
     }
   }
 
@@ -101,14 +173,32 @@
     inputMinutes = 0;
     inputSeconds = 0;
     sessionStartTime = null;
+    timerStartSeconds = 0;
   }
 
   // Update learning method when selected
   function onMethodChange() {
     const method = data.learningMethods.find((m) => /** @type {any} */ (m)._id === selectedMethod);
-    if (method && selectedMode === 'Timer') {
-      inputMinutes = /** @type {any} */ (method).defaultWorkMinutes || 0;
-      inputSeconds = 0;
+    if (method) {
+      const methodData = /** @type {any} */ (method);
+      // Timer-Modus basierend auf dem type der Lernmethode setzen
+      if (methodData.type === 'stopwatch') {
+        selectedMode = 'Stopuhr';
+        // Bei Stopuhr starten wir bei 0
+        if (!isRunning) {
+          inputMinutes = 0;
+          inputSeconds = 0;
+          timeSeconds = 0;
+        }
+      } else if (methodData.type === 'timer') {
+        selectedMode = 'Timer';
+        // Bei Timer die defaultWorkMinutes verwenden
+        inputMinutes = methodData.defaultWorkMinutes || 25;
+        inputSeconds = 0;
+        if (!isRunning) {
+          timeSeconds = inputMinutes * 60;
+        }
+      }
     }
   }
 
@@ -127,6 +217,28 @@
 
   // Timer interval
   onMount(() => {
+    // URL-Parameter lesen und Lernmethode setzen
+    const methodParam = $page.url.searchParams.get('method');
+    if (methodParam) {
+      const method = data.learningMethods.find((m) => /** @type {any} */ (m)._id === methodParam);
+      if (method) {
+        selectedMethod = methodParam;
+        const methodData = /** @type {any} */ (method);
+        // Timer-Modus basierend auf type setzen
+        if (methodData.type === 'stopwatch') {
+          selectedMode = 'Stopuhr';
+          inputMinutes = 0;
+          inputSeconds = 0;
+          timeSeconds = 0;
+        } else if (methodData.type === 'timer') {
+          selectedMode = 'Timer';
+          inputMinutes = methodData.defaultWorkMinutes || 25;
+          inputSeconds = 0;
+          timeSeconds = inputMinutes * 60;
+        }
+      }
+    }
+
     const interval = setInterval(() => {
       if (isRunning) {
         if (selectedMode === 'Stopuhr') {
@@ -144,6 +256,17 @@
     return () => clearInterval(interval);
   });
 </script>
+
+<!-- Notification Toast -->
+{#if showNotification}
+  <div class="notification-container">
+    <div class="alert {notificationType === 'success' ? 'alert-success' : 'alert-danger'} alert-dismissible fade show d-flex align-items-center" role="alert">
+      <i class="bi {notificationType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+      <div>{notificationMessage}</div>
+      <button type="button" class="btn-close" aria-label="Close" on:click={() => showNotification = false}></button>
+    </div>
+  </div>
+{/if}
 
 <div class="timer-container">
   <h1>Timer</h1>
@@ -178,10 +301,13 @@
     <!-- Timer mode -->
     <div class="setting-group">
       <label for="mode">Timer-Modus</label>
-      <select id="mode" bind:value={selectedMode}>
+      <select id="mode" bind:value={selectedMode} disabled={selectedMethod !== ''}>
         <option value="Stopuhr">Stopuhr</option>
         <option value="Timer">Timer</option>
       </select>
+      {#if selectedMethod !== ''}
+        <small class="mode-hint">Modus wird durch Lernmethode festgelegt</small>
+      {/if}
     </div>
   </div>
 
@@ -221,12 +347,15 @@
 
 <!-- Save Session Modal -->
 {#if showSaveModal}
-  <div class="modal-backdrop fade show" style="position:fixed;width:100vw;height:100vh;z-index:1040;background:rgba(0,0,0,0.5);"></div>
-  <div class="modal fade show" tabindex="-1" style="display:block;z-index:1050;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-backdrop-custom"></div>
+  <div class="modal-custom" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modal-title">Aktivität speichern</h5>
+          <div>
+            <h5 class="modal-title" id="modal-title">Aktivität speichern</h5>
+            <p class="modal-subtitle">Speichern Sie die Details Ihrer Aktivität</p>
+          </div>
           <button type="button" class="btn-close" aria-label="Close" on:click={closeModal}></button>
         </div>
         <form on:submit|preventDefault={saveSession} autocomplete="off">
@@ -237,20 +366,20 @@
             </div>
             <div class="mb-3">
               <span class="form-label">Tags</span>
-              <div class="mb-2" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              <!-- Ausgewählte Tags -->
+              <div class="tag-container">
                 {#each selectedTags as tagId (tagId)}
                   {#if tagsMap.get(tagId)}
+                    {@const tag = tagsMap.get(tagId)}
                     <span class="tag-chip-selected">
-                      {#if tagsMap.get(tagId)}
-                        {@const tag = tagsMap.get(tagId)}
-                        {tag ? tag.name : ''}
-                      {/if}
+                      {tag?.name ?? ''}
                       <button type="button" class="btn-close btn-sm ms-1" aria-label="Entfernen" on:click={() => removeTag(tagId)}></button>
                     </span>
                   {/if}
                 {/each}
               </div>
-              <div class="mb-2" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              <!-- Verfügbare Tags aus MongoDB -->
+              <div class="tag-container">
                 {#each data.tags as tag (tag._id)}
                   {#if !selectedTags.includes(tag._id)}
                     <button type="button" class="btn btn-outline-secondary btn-sm tag-chip-unselected" on:click={() => addTag(tag._id)}>+ {tag.name}</button>
@@ -384,6 +513,20 @@
     box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
   }
 
+  .setting-group select:disabled {
+    background: #f5f5f5;
+    color: #888;
+    cursor: not-allowed;
+  }
+
+  .mode-hint {
+    display: block;
+    margin-top: 0.25rem;
+    color: #888;
+    font-size: 0.8rem;
+    font-style: italic;
+  }
+
   .timer-input {
     background: white;
     padding: 1.5rem;
@@ -461,7 +604,87 @@
   }
 
   /* Modal Styles */
+  .modal-backdrop-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1040;
+    background: rgba(0, 0, 0, 0.5);
+  }
 
+  .modal-custom {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1050;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-dialog {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 1.75rem auto;
+    pointer-events: auto;
+  }
+
+  .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .modal-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0 0;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #e9ecef;
+  }
+
+  .tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
 
   .tag-chip-selected {
     background: #e9ecef;
@@ -487,5 +710,26 @@
     border-radius: 16px;
     font-size: 1rem;
     padding: 0.35em 1em;
+  }
+
+  /* Notification Container */
+  .notification-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 2000;
+    max-width: 400px;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 </style>

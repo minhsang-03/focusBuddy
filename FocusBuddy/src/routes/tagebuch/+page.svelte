@@ -271,36 +271,6 @@
     line-height: 1.6;
   }
 
-  /* Login message */
-  .login-message {
-    background: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .login-message p {
-    margin: 0 0 1rem 0;
-    color: #333;
-    font-size: 1rem;
-  }
-
-  .btn-login-link {
-    display: inline-block;
-    background: #0b1220;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: background 0.3s;
-  }
-
-  .btn-login-link:hover {
-    background: #1a1a1a;
-  }
-
   @media (max-width: 600px) {
     .journal-container {
       padding: 1rem;
