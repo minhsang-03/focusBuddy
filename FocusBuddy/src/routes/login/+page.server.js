@@ -26,48 +26,51 @@ export const actions = {
       return { success: false, error: 'Email und Passwort sind erforderlich' };
     }
 
+    /** @type {any} */
+    let user;
+    
     try {
       // Find user by email
-      const user = await getUserByEmail(email);
-
-      if (!user) {
-        return { success: false, error: 'Email oder Passwort ist falsch' };
-      }
-
-      // Get the stored password hash
-      const storedPassword = /** @type {any} */ (user).passwordHash || '';
-
-      if (!storedPassword) {
-        return { success: false, error: 'Email oder Passwort ist falsch' };
-      }
-
-      // Parse salt and hash from stored format "salt:hash"
-      const [salt, hash] = storedPassword.split(':');
-
-      if (!salt || !hash) {
-        return { success: false, error: 'Email oder Passwort ist falsch' };
-      }
-
-      // Hash the provided password with the stored salt
-      const key = scryptSync(password, salt, 64);
-      const hashedPassword = Buffer.from(key).toString('hex');
-
-      // Compare hashes
-      if (hash !== hashedPassword) {
-        return { success: false, error: 'Email oder Passwort ist falsch' };
-      }
-
-      // Set cookie and redirect
-      cookies.set('userId', String(/** @type {any} */ (user)._id), {
-        httpOnly: true,
-        path: '/',
-        maxAge: 60 * 60 * 24 * 30 // 30 days
-      });
-
-      throw redirect(302, '/timer');
+      user = await getUserByEmail(email);
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: 'Ein Fehler ist aufgetreten' };
     }
+
+    if (!user) {
+      return { success: false, error: 'Email oder Passwort ist falsch' };
+    }
+
+    // Get the stored password hash
+    const storedPassword = user.passwordHash || '';
+
+    if (!storedPassword) {
+      return { success: false, error: 'Email oder Passwort ist falsch' };
+    }
+
+    // Parse salt and hash from stored format "salt:hash"
+    const [salt, hash] = storedPassword.split(':');
+
+    if (!salt || !hash) {
+      return { success: false, error: 'Email oder Passwort ist falsch' };
+    }
+
+    // Hash the provided password with the stored salt
+    const key = scryptSync(password, salt, 64);
+    const hashedPassword = Buffer.from(key).toString('hex');
+
+    // Compare hashes
+    if (hash !== hashedPassword) {
+      return { success: false, error: 'Email oder Passwort ist falsch' };
+    }
+
+    // Set cookie and redirect
+    cookies.set('userId', String(user._id), {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30 // 30 days
+    });
+
+    throw redirect(302, '/timer?login=success');
   }
 };

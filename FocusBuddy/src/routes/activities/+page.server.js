@@ -8,6 +8,7 @@ export async function load({ parent }) {
   const allActivities = await getActivities();
   // getTags returns object[]; will be normalized below
   const allTags = await import('$lib/db.js').then(mod => mod.getTags());
+  const allMethods = await import('$lib/db.js').then(mod => mod.getLearningMethods());
 
   // Filter activities by current user's ID
   let activities = allActivities.filter(a => /** @type {{ userId?: string }} */ (a).userId === user?._id);
@@ -41,7 +42,8 @@ export async function load({ parent }) {
 
   return {
     activities,
-    user
+    user,
+    learningMethods: allMethods
   };
 }
 

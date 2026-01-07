@@ -112,10 +112,11 @@ export const actions = {
 
     try {
       await deleteUser(userId);
-      cookies.delete('userId', { path: '/' });
-      throw redirect(302, '/');
     } catch (error) {
       return fail(500, { error: 'Failed to delete account' });
     }
+    
+    cookies.delete('userId', { path: '/' });
+    throw redirect(302, '/');
   }
 };

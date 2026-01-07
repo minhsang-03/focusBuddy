@@ -12,24 +12,50 @@
   }
   import { enhance } from '$app/forms';
   import { onMount } from 'svelte';
+  import Chart from 'chart.js/auto';
 
   // Notification state
   let showNotification = false;
   let notificationType = 'success'; // 'success' or 'error'
   let notificationMessage = '';
 
-  /** @type {{ activities: Array<{_id: string, title: string, description: string, tags?: string[], method?: string, durationSeconds?: number, startTime?: Date, endTime?: Date, createdAt?: Date}>, user: any }} */
+  /** @type {{ activities: Array<{_id: string, title: string, description: string, tags?: string[], method?: string, durationSeconds?: number, startTime?: Date, endTime?: Date, createdAt?: Date}>, user: any, learningMethods?: Array<{_id: string, name: string}> }} */
   export let data;
 
   let viewMode = 'liste'; // 'liste' or 'diagramme'
   let totalTimeSeconds = 0;
+  let timeUnit = 'minuten'; // 'minuten' or 'stunden'
   /** @type {Array<{_id: string, title?: string, description?: string, tags?: string[], method?: string, durationSeconds?: number, startTime?: Date, endTime?: Date, createdAt?: Date}>} */
   let activities = [];
+  /** @type {Array<{_id: string, name: string}>} */
+  let learningMethods = [];
+  
+  // Chart instances
+  /** @type {Chart | null} */
+  let dailyChart = null;
+  /** @type {Chart | null} */
+  let categoryChart = null;
 
   onMount(() => {
     activities = data.activities || [];
+    learningMethods = data.learningMethods || [];
     calculateTotalTime();
   });
+
+  // Initialize charts when switching to diagram view or changing time unit
+  $: if (viewMode === 'diagramme' && activities.length > 0) {
+    // Use setTimeout to ensure DOM is ready
+    setTimeout(() => {
+      initCharts();
+    }, 0);
+  }
+  
+  // Re-render charts when time unit changes
+  $: if (viewMode === 'diagramme' && timeUnit) {
+    setTimeout(() => {
+      initCharts();
+    }, 0);
+  }
 
   // Calculate total time from all activities
   function calculateTotalTime() {
@@ -101,6 +127,144 @@
       hour: '2-digit',
       minute: '2-digit',
     });
+  }
+
+  // Get activities grouped by date
+  function getActivitiesByDate() {
+    /** @type {Record<string, number>} */
+    const grouped = {};
+    
+    activities.forEach(activity => {
+      if (activity.startTime) {
+        const date = new Date(activity.startTime);
+        const dateKey = date.toLocaleDateString('de-DE');
+        grouped[dateKey] = (grouped[dateKey] || 0) + (activity.durationSeconds || 0);
+      }
+    });
+    
+    return grouped;
+  }
+
+  // Get activities grouped by tags/category
+  function getActivitiesByCategory() {
+    /** @type {Record<string, number>} */
+    const grouped = {};
+    
+    activities.forEach(activity => {
+      if (activity.tags && Array.isArray(activity.tags) && activity.tags.length > 0) {
+        activity.tags.forEach(tag => {
+          // Tag kann ein Objekt {_id, name} oder ein String sein
+          let tagName = '';
+          if (typeof tag === 'object' && tag !== null) {
+            tagName = tag.name || String(tag._id);
+          } else {
+            tagName = String(tag);
+          }
+          
+          if (tagName) {
+            grouped[tagName] = (grouped[tagName] || 0) + (activity.durationSeconds || 0);
+          }
+        });
+      } else {
+        // If no tags, add to "Keine Tags" category
+        grouped['Keine Tags'] = (grouped['Keine Tags'] || 0) + (activity.durationSeconds || 0);
+      }
+    });
+    
+    return grouped;
+  }
+
+  // Initialize both charts
+  function initCharts() {
+    const byDate = getActivitiesByDate();
+    const byCategory = getActivitiesByCategory();
+    
+    console.log('Activities:', activities);
+    console.log('By Category:', byCategory);
+    
+    // Determine conversion factor and label
+    const conversionFactor = timeUnit === 'stunden' ? 3600 : 60;
+    const unitLabel = timeUnit === 'stunden' ? 'Stunden' : 'Minuten';
+    
+    // Daily chart
+    const dailyCtx = document.getElementById('dailyChart');
+    if (dailyCtx) {
+      if (dailyChart) dailyChart.destroy();
+      
+      dailyChart = new Chart(dailyCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(byDate),
+          datasets: [{
+            label: unitLabel,
+            data: Object.values(byDate).map(s => parseFloat((s / conversionFactor).toFixed(2))),
+            backgroundColor: '#2196f3',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              text: `Zeit pro Tag (${unitLabel})`
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Category chart
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+      if (categoryChart) categoryChart.destroy();
+      
+      categoryChart = new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(byCategory),
+          datasets: [{
+            label: unitLabel,
+            data: Object.values(byCategory).map(s => parseFloat((s / conversionFactor).toFixed(2))),
+            backgroundColor: '#2196f3',
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              text: `Zeit pro Tag (${unitLabel})`
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
   }
 </script>
 
@@ -185,9 +349,31 @@
       {/if}
     </div>
   {:else}
-    <!-- Diagram view (placeholder) -->
+    <!-- Diagram view -->
     <div class="diagram-view">
-      <p>Diagramme-Ansicht (In Entwicklung)</p>
+      <!-- Time unit toggle -->
+      <div class="time-unit-toggle">
+        <button
+          class="unit-btn {timeUnit === 'minuten' ? 'active' : ''}"
+          on:click={() => (timeUnit = 'minuten')}
+        >
+          In Minuten
+        </button>
+        <button
+          class="unit-btn {timeUnit === 'stunden' ? 'active' : ''}"
+          on:click={() => (timeUnit = 'stunden')}
+        >
+          In Stunden
+        </button>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <canvas id="dailyChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
     </div>
   {/if}
   {/if}
@@ -430,12 +616,70 @@
   }
 
   .diagram-view {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .time-unit-toggle {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+  }
+
+  .unit-btn {
+    padding: 0.6rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: #666;
+  }
+
+  .unit-btn:hover {
+    border-color: #2196f3;
+    color: #2196f3;
+  }
+
+  .unit-btn.active {
+    background: #2196f3;
+    border-color: #2196f3;
+    color: white;
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .chart-card {
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    color: #999;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .chart-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #1a1a1a;
+    text-align: left;
+  }
+
+  .chart-card canvas {
+    max-height: 300px;
+  }
+
+  @media (max-width: 900px) {
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 600px) {

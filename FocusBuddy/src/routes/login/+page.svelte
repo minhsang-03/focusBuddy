@@ -9,12 +9,18 @@
   function handleSubmit() {
     isSubmitting = true;
     errorMessage = '';
-    return async (/** @type {any} */ { result }) => {
+    return async (/** @type {any} */ { result, update }) => {
       isSubmitting = false;
-      if (result.status === 200 && result.data?.success) {
-        // Redirect happens on server
-      } else if (result.data?.error) {
-        errorMessage = result.data.error;
+      
+      if (result.type === 'redirect') {
+        // Erfolgreich eingeloggt - Weiterleitung wird automatisch durchgeführt
+        window.location.href = result.location;
+      } else if (result.type === 'failure' || result.data?.error) {
+        // Fehler bei der Anmeldung
+        errorMessage = result.data?.error || 'Ein Fehler ist aufgetreten';
+      } else {
+        // Fallback für andere Fälle
+        await update();
       }
     };
   }
@@ -22,13 +28,6 @@
 
 <div class="login-wrapper">
   <div class="login-container">
-    <div class="logo-circle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="12 6 12 12 16 14" />
-      </svg>
-    </div>
-
     <h1>Willkommen bei FocusBuddy</h1>
     <p class="subtitle">Melden Sie sich an, um fortzufahren</p>
 
@@ -92,23 +91,6 @@
     max-width: 480px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     text-align: center;
-  }
-
-  .logo-circle {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 2rem;
-    background: #e3f2fd;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #5c7cfa;
-  }
-
-  .logo-circle svg {
-    width: 40px;
-    height: 40px;
   }
 
   h1 {

@@ -2,23 +2,31 @@
   import { goto } from '$app/navigation';
   
   export let data;
-  /** @type {import('./$types').ActionData | null} */
-  export let form = null;
   let activity = data.activity;
   let title = activity.title || '';
   let description = activity.description || '';
   let method = activity.method || '';
-  let durationSeconds = activity.durationSeconds || 0;
-  let startTime = activity.startTime ? new Date(activity.startTime).toISOString().slice(0,16) : '';
-  let endTime = activity.endTime ? new Date(activity.endTime).toISOString().slice(0,16) : '';
+  
+  // Duration in separate units
+  let durationHours = 0;
+  let durationMinutes = 0;
+  let durationSeconds = 0;
+  
+  // Initialize duration from activity
+  $: if (activity.durationSeconds) {
+    const totalSecs = activity.durationSeconds;
+    durationHours = Math.floor(totalSecs / 3600);
+    durationMinutes = Math.floor((totalSecs % 3600) / 60);
+    durationSeconds = totalSecs % 60;
+  }
   
   // Tags state - extract IDs from activity tags
   /** @type {string[]} */
   let selectedTags = (activity.tags || []).map(/** @param {any} t */ t => typeof t === 'object' ? t._id : t);
   /** @type {Array<{_id: string, name: string}>} */
-  let availableTags = data.tags || [];
+  let availableTags = /** @type {Array<{_id: string, name: string}>} */ (data.tags || []);
   /** @type {Array<{_id: string, name: string}>} */
-  let learningMethods = data.learningMethods || [];
+  let learningMethods = /** @type {Array<{_id: string, name: string}>} */ (data.learningMethods || []);
 
   /**
    * Toggle tag selection
@@ -32,17 +40,31 @@
     }
   }
 
+  /**
+   * Calculate total duration in seconds from hours, minutes, and seconds
+   * @returns {number}
+   */
+  function getTotalDurationSeconds() {
+    return (durationHours * 3600) + (durationMinutes * 60) + durationSeconds;
+  }
+
   // Notification state
   let showNotification = false;
   let notificationType = 'success';
   let notificationMessage = '';
   let isSubmitting = false;
 
+  /** @param {SubmitEvent} event */
   async function handleSubmit(event) {
     event.preventDefault();
     isSubmitting = true;
     
-    const formData = new FormData(event.target);
+    const form = /** @type {HTMLFormElement} */ (event.target);
+    const formData = new FormData(form);
+    
+    // Calculate and add total duration in seconds
+    const totalDurationSeconds = getTotalDurationSeconds();
+    formData.set('durationSeconds', String(totalDurationSeconds));
     
     try {
       const response = await fetch(`/activities/${activity._id}`, {
@@ -108,14 +130,21 @@
         {/each}
       </select>
     </label>
-    <label class="activity-label">Dauer (Sekunden):
-      <input class="activity-input" name="durationSeconds" type="number" bind:value={durationSeconds} min="0" />
-    </label>
-    <label class="activity-label">Startzeit:
-      <input class="activity-input" name="startTime" type="datetime-local" bind:value={startTime} />
-    </label>
-    <label class="activity-label">Endzeit:
-      <input class="activity-input" name="endTime" type="datetime-local" bind:value={endTime} />
+    <label class="activity-label">Dauer:
+      <div class="duration-inputs">
+        <div class="duration-field">
+          <input class="activity-input" type="number" bind:value={durationHours} min="0" max="23" />
+          <span class="duration-label">Stunden</span>
+        </div>
+        <div class="duration-field">
+          <input class="activity-input" type="number" bind:value={durationMinutes} min="0" max="59" />
+          <span class="duration-label">Minuten</span>
+        </div>
+        <div class="duration-field">
+          <input class="activity-input" type="number" bind:value={durationSeconds} min="0" max="59" />
+          <span class="duration-label">Sekunden</span>
+        </div>
+      </div>
     </label>
     
     <!-- Tags selection -->
@@ -209,6 +238,34 @@
 
 .btn-close::before {
   content: '×';
+}
+
+/* Duration inputs styles */
+.duration-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.duration-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.duration-field .activity-input {
+  margin-top: 0;
+  text-align: center;
+  font-size: 1rem;
+  padding: 0.6rem;
+}
+
+.duration-label {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #999;
+  font-weight: 500;
 }
 
 /* Tags styles */
@@ -309,14 +366,6 @@
 }
 .activity-btn-cancel:hover {
   background: #e0e0e0;
-}
-.activity-error {
-  color: #d32f2f;
-  background: #ffebee;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
-  text-align: center;
 }
 @media (max-width: 600px) {
   .activity-edit-card {

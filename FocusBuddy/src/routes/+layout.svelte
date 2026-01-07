@@ -26,11 +26,6 @@
 <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center" href="/timer">
-      <img
-        src="/img/focusbuddy-no-bg.svg"
-        alt="FocusBuddy Logo"
-        class="logo me-2"
-      />
       <span class="brand-text">FocusBuddy</span>
     </a>
     <button
@@ -107,11 +102,6 @@
   .navbar {
     padding: 0.5rem 1rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  }
-  
-  .logo {
-    height: 36px;
-    width: auto;
   }
   
   .brand-text {

@@ -72,10 +72,12 @@
         <p>Erstellen Sie eine neue To-Do-Aufgabe</p>
 
         <form method="POST" action="?/create" use:enhance={() => {
-          return async ({ result }) => {
-            if (result.type === 'success' && result.data?.success) {
+          return async ({ result, update }) => {
+            if (result.type === 'success' || (result.data && result.data.success)) {
               showModal = false;
               location.reload();
+            } else {
+              await update();
             }
           };
         }}>

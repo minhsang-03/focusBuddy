@@ -2,8 +2,11 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
 
-  /** @type {{ learningMethods: Array<{_id: string, name: string, defaultWorkMinutes?: number, defaultBreakMinutes?: number}>, tags: Array<{_id: string, name: string}> }} */
+  /** @type {{ learningMethods: Array<{_id: string, name: string, defaultWorkMinutes?: number, defaultBreakMinutes?: number}>, tags: Array<{_id: string, name: string}>, user: any }} */
   export let data;
+
+  // Prüfe ob Benutzer eingeloggt ist (aus Layout-Daten)
+  $: isLoggedIn = !!$page.data.user;
 
   let timeSeconds = 0;
   let isRunning = false;
@@ -62,6 +65,16 @@
   // End the session
   function endSession() {
     isRunning = false;
+    
+    // Prüfe ob Benutzer eingeloggt ist
+    if (!isLoggedIn) {
+      showNotification = true;
+      notificationType = 'error';
+      notificationMessage = 'Bitte melden Sie sich an, um Aktivitäten zu speichern.';
+      setTimeout(() => { showNotification = false; }, 5000);
+      return;
+    }
+    
     showSaveModal = true;
   }
 
@@ -217,6 +230,32 @@
 
   // Timer interval
   onMount(() => {
+    // Prüfe ob Benutzer gerade eingeloggt wurde
+    const loginParam = $page.url.searchParams.get('login');
+    if (loginParam === 'success') {
+      showNotification = true;
+      notificationType = 'success';
+      notificationMessage = 'Erfolgreich angemeldet!';
+      setTimeout(() => { showNotification = false; }, 3000);
+      // Entferne den Parameter aus der URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('login');
+      window.history.replaceState({}, '', url);
+    }
+
+    // Prüfe ob Benutzer gerade registriert wurde
+    const registerParam = $page.url.searchParams.get('register');
+    if (registerParam === 'success') {
+      showNotification = true;
+      notificationType = 'success';
+      notificationMessage = 'Erfolgreich registriert und angemeldet!';
+      setTimeout(() => { showNotification = false; }, 3000);
+      // Entferne den Parameter aus der URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('register');
+      window.history.replaceState({}, '', url);
+    }
+
     // URL-Parameter lesen und Lernmethode setzen
     const methodParam = $page.url.searchParams.get('method');
     if (methodParam) {

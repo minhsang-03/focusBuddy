@@ -26,15 +26,18 @@
   function handleSubmit() {
     isSubmitting = true;
     formMessage = '';
-    return async (/** @type {any} */ { result }) => {
+    return async (/** @type {any} */ { result, update }) => {
       isSubmitting = false;
-      if (result.status === 200 && result.data?.success) {
+      
+      if (result.type === 'success' || (result.data && result.data.success)) {
         showForm = false;
         formMessage = '';
         // Reload data
         location.reload();
-      } else if (result.data?.error) {
-        formMessage = result.data.error;
+      } else if (result.type === 'failure' || result.data?.error) {
+        formMessage = result.data?.error || 'Ein Fehler ist aufgetreten';
+      } else {
+        await update();
       }
     };
   }

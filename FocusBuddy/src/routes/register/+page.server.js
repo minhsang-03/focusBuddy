@@ -40,6 +40,6 @@ export const actions = {
 
     cookies.set('userId', ((/** @type {{_id?: string}} */ (user))._id || ''), { path: '/', httpOnly: true });
 
-    throw redirect(302, '/timer');
+    throw redirect(302, '/timer?register=success');
   }
 };
