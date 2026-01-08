@@ -1,6 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { DB_URI } from '$env/static/private';
-import { get } from "svelte/store";
 
 // Minimal, focused DB module to work with Users documents of the shape:
 // { _id: ObjectId, username, email, passwordHash, createdAt }
@@ -178,8 +177,9 @@ export async function getTodo(id) {
 export async function createTodo(data) {
   const collection = db.collection('todos');
   const doc = {
-    text: data.text || '',
-    priority: data.priority || 'normal',
+    title: data.title || data.text || '',
+    description: data.description || '',
+    priority: data.priority || 'medium',
     completed: !!data.completed,
     userId: data.userId && ObjectId.isValid(data.userId) ? new ObjectId(data.userId) : undefined,
     dueDate: data.dueDate ? new Date(data.dueDate) : undefined,

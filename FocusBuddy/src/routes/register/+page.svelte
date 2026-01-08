@@ -11,244 +11,89 @@
       isSubmitting = false;
       
       if (result.type === 'redirect') {
-        // Erfolgreich registriert - Weiterleitung wird durchgeführt
         window.location.href = result.location;
       } else if (result.type === 'failure' || result.data?.error) {
-        // Fehler bei der Registrierung
         errorMessage = result.data?.error || 'Ein Fehler ist aufgetreten';
       } else {
-        // Fallback für andere Fälle
         await update();
       }
     };
   }
 </script>
 
-<div class="register-wrapper">
-  <div class="register-container">
-    <h1>Registrieren</h1>
-    <p class="subtitle">Erstellen Sie ein neues Konto</p>
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-4">
+  <div class="card shadow-lg" style="max-width: 480px; width: 100%;">
+    <div class="card-body p-4 p-md-5 text-center">
+      <h1 class="h3 fw-bold mb-2">Registrieren</h1>
+      <p class="text-muted mb-4">Erstellen Sie ein neues Konto</p>
 
-    <form method="POST" use:enhance={handleSubmit} class="register-form">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input
-          id="name"
-          type="text"
-          name="name"
-          placeholder="Ihr Name"
-          required
-          disabled={isSubmitting}
-        />
-      </div>
+      <form method="POST" use:enhance={handleSubmit}>
+        <div class="mb-3 text-start">
+          <label for="name" class="form-label fw-semibold">Name</label>
+          <input
+            id="name"
+            type="text"
+            name="name"
+            placeholder="Ihr Name"
+            required
+            disabled={isSubmitting}
+            class="form-control"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="email">E-Mail</label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          placeholder="ihre@email.de"
-          required
-          disabled={isSubmitting}
-        />
-      </div>
+        <div class="mb-3 text-start">
+          <label for="email" class="form-label fw-semibold">E-Mail</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="ihre@email.de"
+            required
+            disabled={isSubmitting}
+            class="form-control"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="password">Passwort</label>
-        <input
-          id="password"
-          type="password"
-          name="password"
-          placeholder=""
-          required
-          disabled={isSubmitting}
-        />
-      </div>
+        <div class="mb-3 text-start">
+          <label for="password" class="form-label fw-semibold">Passwort</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            disabled={isSubmitting}
+            class="form-control"
+          />
+        </div>
 
-      <div class="form-group">
-        <label for="confirm">Passwort bestätigen</label>
-        <input
-          id="confirm"
-          type="password"
-          name="confirmPassword"
-          placeholder=""
-          required
-          disabled={isSubmitting}
-        />
-      </div>
+        <div class="mb-3 text-start">
+          <label for="confirm" class="form-label fw-semibold">Passwort bestätigen</label>
+          <input
+            id="confirm"
+            type="password"
+            name="confirmPassword"
+            placeholder="••••••••"
+            required
+            disabled={isSubmitting}
+            class="form-control"
+          />
+        </div>
 
-      {#if errorMessage}
-        <div class="error-message">{errorMessage}</div>
-      {/if}
+        {#if errorMessage}
+          <div class="alert alert-danger py-2 text-start">
+            <i class="bi bi-exclamation-triangle me-2"></i>{errorMessage}
+          </div>
+        {/if}
 
-      <button type="submit" class="btn-register" disabled={isSubmitting}>
-        {isSubmitting ? 'Wird registriert...' : 'Registrieren'}
-      </button>
-    </form>
+        <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold" disabled={isSubmitting}>
+          {isSubmitting ? 'Wird registriert...' : 'Registrieren'}
+        </button>
+      </form>
 
-    <p class="login-link">
-      Haben Sie bereits ein Konto? <a href="/login">Anmelden</a>
-    </p>
+      <p class="text-muted mt-4 mb-0">
+        Haben Sie bereits ein Konto? <a href="/login" class="text-primary fw-semibold text-decoration-none">Anmelden</a>
+      </p>
+    </div>
   </div>
 </div>
-
-<style>
-  .register-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f5f5f5;
-    padding: 1rem;
-  }
-
-  .register-container {
-    background: white;
-    border-radius: 16px;
-    padding: 3rem 2rem;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    text-align: center;
-  }
-
-  .logo-circle {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 2rem;
-    background: #e3f2fd;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #5c7cfa;
-
-  h1 {
-    font-size: 2rem;
-    margin: 0 0 0.5rem 0;
-    color: #1a1a1a;
-    font-weight: 700;
-  }
-
-  .subtitle {
-    color: #666;
-    margin: 0 0 2rem 0;
-    font-size: 1rem;
-  }
-
-  .register-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .form-group {
-    text-align: left;
-  }
-
-  .form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #1a1a1a;
-    font-size: 0.9rem;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: all 0.3s;
-    background: #f8f8f8;
-    box-sizing: border-box;
-  }
-
-  .form-group input:focus {
-    outline: none;
-    background: white;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-
-  .form-group input::placeholder {
-    color: #999;
-  }
-
-  .error-message {
-    background: #ffebee;
-    border: 1px solid #ef5350;
-    color: #c62828;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-  }
-
-  .btn-register {
-    background: #0b1220;
-    color: white;
-    border: none;
-    padding: 0.875rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-    width: 100%;
-  }
-
-  .btn-register:hover:not(:disabled) {
-    background: #1a1a1a;
-  }
-
-  .btn-register:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .login-link {
-    margin: 0;
-    color: #666;
-    font-size: 0.95rem;
-  }
-
-  .login-link a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s;
-  }
-
-  .login-link a:hover {
-    color: #764ba2;
-  }
-
-  @media (max-width: 600px) {
-    .register-wrapper {
-      padding: 1rem;
-    }
-
-    .register-container {
-      padding: 2rem 1.5rem;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-    }
-
-    .logo-circle {
-      width: 70px;
-      height: 70px;
-      margin-bottom: 1.5rem;
-    }
-
-    .logo-circle svg {
-      width: 35px;
-      height: 35px;
-    }
-  }
-</style>

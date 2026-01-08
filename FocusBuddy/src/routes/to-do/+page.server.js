@@ -16,19 +16,53 @@ export const actions = {
   create: async ({ request, cookies }) => {
     const userId = cookies.get('userId');
     const formData = await request.formData();
-    const text = formData.get('text');
-    const priority = formData.get('priority') || 'normal';
+    const title = formData.get('title');
+    const description = formData.get('description') || '';
+    const priority = formData.get('priority') || 'medium';
     const dueDate = formData.get('dueDate');
 
-    if (!text) {
-      return { success: false, error: 'Text ist erforderlich' };
+    if (!title) {
+      return { success: false, error: 'Titel ist erforderlich' };
     }
 
     try {
-      await createTodo({ text, priority, completed: false, dueDate, userId });
+      await createTodo({ 
+        title, 
+        description, 
+        priority, 
+        completed: false, 
+        dueDate: dueDate ? new Date(/** @type {string} */ (dueDate)) : null, 
+        userId 
+      });
       return { success: true };
     } catch (error) {
       return { success: false, error: 'Fehler beim Erstellen der Aufgabe' };
+    }
+  },
+
+  update: async ({ request }) => {
+    const formData = await request.formData();
+    const id = formData.get('id');
+    const title = formData.get('title');
+    const description = formData.get('description') || '';
+    const priority = formData.get('priority') || 'medium';
+    const dueDate = formData.get('dueDate');
+
+    if (!title) {
+      return { success: false, error: 'Titel ist erforderlich' };
+    }
+
+    try {
+      await updateTodo({ 
+        _id: id, 
+        title, 
+        description, 
+        priority, 
+        dueDate: dueDate ? new Date(/** @type {string} */ (dueDate)) : null 
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Fehler beim Aktualisieren' };
     }
   },
 

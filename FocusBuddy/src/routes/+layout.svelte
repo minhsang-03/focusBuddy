@@ -133,20 +133,7 @@
     border-bottom: 2px solid #2196f3;
   }
   
-  .avatar-sm {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
-    color: #fff;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-  
-  .dropdown-menu {
+.dropdown-menu {
     border: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }

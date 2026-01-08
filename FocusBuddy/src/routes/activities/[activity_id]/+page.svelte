@@ -7,12 +7,10 @@
   let description = activity.description || '';
   let method = activity.method || '';
   
-  // Duration in separate units
   let durationHours = 0;
   let durationMinutes = 0;
   let durationSeconds = 0;
   
-  // Initialize duration from activity
   $: if (activity.durationSeconds) {
     const totalSecs = activity.durationSeconds;
     durationHours = Math.floor(totalSecs / 3600);
@@ -20,7 +18,6 @@
     durationSeconds = totalSecs % 60;
   }
   
-  // Tags state - extract IDs from activity tags
   /** @type {string[]} */
   let selectedTags = (activity.tags || []).map(/** @param {any} t */ t => typeof t === 'object' ? t._id : t);
   /** @type {Array<{_id: string, name: string}>} */
@@ -29,7 +26,6 @@
   let learningMethods = /** @type {Array<{_id: string, name: string}>} */ (data.learningMethods || []);
 
   /**
-   * Toggle tag selection
    * @param {string} tagId
    */
   function toggleTag(tagId) {
@@ -41,14 +37,12 @@
   }
 
   /**
-   * Calculate total duration in seconds from hours, minutes, and seconds
    * @returns {number}
    */
   function getTotalDurationSeconds() {
     return (durationHours * 3600) + (durationMinutes * 60) + durationSeconds;
   }
 
-  // Notification state
   let showNotification = false;
   let notificationType = 'success';
   let notificationMessage = '';
@@ -61,8 +55,6 @@
     
     const form = /** @type {HTMLFormElement} */ (event.target);
     const formData = new FormData(form);
-    
-    // Calculate and add total duration in seconds
     const totalDurationSeconds = getTotalDurationSeconds();
     formData.set('durationSeconds', String(totalDurationSeconds));
     
@@ -76,10 +68,7 @@
         showNotification = true;
         notificationType = 'success';
         notificationMessage = 'Aktivität erfolgreich gespeichert!';
-        // Redirect to activities page after short delay
-        setTimeout(() => { 
-          goto('/activities');
-        }, 1500);
+        setTimeout(() => { goto('/activities'); }, 1500);
       } else {
         showNotification = true;
         notificationType = 'error';
@@ -101,275 +90,90 @@
 <!-- Notification Toast -->
 {#if showNotification}
   <div class="notification-container">
-    <div class="alert {notificationType === 'success' ? 'alert-success' : 'alert-danger'} alert-dismissible fade show" role="alert">
-      {#if notificationType === 'success'}
-        <strong>✓</strong>
-      {:else}
-        <strong>✕</strong>
-      {/if}
-      {notificationMessage}
+    <div class="alert {notificationType === 'success' ? 'alert-success' : 'alert-danger'} alert-dismissible fade show d-flex align-items-center" role="alert">
+      <i class="bi {notificationType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+      <div>{notificationMessage}</div>
       <button type="button" class="btn-close" aria-label="Close" on:click={() => showNotification = false}></button>
     </div>
   </div>
 {/if}
 
-<div class="activity-edit-card">
-  <h1>Aktivität bearbeiten</h1>
-  <form on:submit={handleSubmit}>
-    <label class="activity-label">Titel:
-      <input class="activity-input" name="title" bind:value={title} required />
-    </label>
-    <label class="activity-label">Beschreibung:
-      <textarea class="activity-input" name="description" bind:value={description} rows="3"></textarea>
-    </label>
-    <label class="activity-label">Methode:
-      <select class="activity-input" name="method" bind:value={method}>
-        <option value="">Keine Methode</option>
-        {#each learningMethods as lm}
-          <option value={lm._id}>{lm.name}</option>
-        {/each}
-      </select>
-    </label>
-    <label class="activity-label">Dauer:
-      <div class="duration-inputs">
-        <div class="duration-field">
-          <input class="activity-input" type="number" bind:value={durationHours} min="0" max="23" />
-          <span class="duration-label">Stunden</span>
+<div class="container py-4">
+  <div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-body">
+      <h1 class="h4 mb-4">Aktivität bearbeiten</h1>
+      
+      <form on:submit={handleSubmit}>
+        <div class="mb-3">
+          <label for="title" class="form-label fw-semibold">Titel</label>
+          <input id="title" type="text" name="title" class="form-control" bind:value={title} required />
         </div>
-        <div class="duration-field">
-          <input class="activity-input" type="number" bind:value={durationMinutes} min="0" max="59" />
-          <span class="duration-label">Minuten</span>
+        
+        <div class="mb-3">
+          <label for="description" class="form-label fw-semibold">Beschreibung</label>
+          <textarea id="description" name="description" class="form-control" rows="3" bind:value={description}></textarea>
         </div>
-        <div class="duration-field">
-          <input class="activity-input" type="number" bind:value={durationSeconds} min="0" max="59" />
-          <span class="duration-label">Sekunden</span>
+        
+        <div class="mb-3">
+          <label for="method" class="form-label fw-semibold">Methode</label>
+          <select id="method" name="method" class="form-select" bind:value={method}>
+            <option value="">Keine Methode</option>
+            {#each learningMethods as lm}
+              <option value={lm._id}>{lm.name}</option>
+            {/each}
+          </select>
         </div>
-      </div>
-    </label>
+        
+        <div class="mb-3">
+          <span class="form-label fw-semibold d-block">Dauer</span>
+          <div class="row g-2">
+            <div class="col-4">
+              <input type="number" class="form-control text-center" bind:value={durationHours} min="0" max="23" />
+              <div class="text-muted small text-center mt-1">Stunden</div>
+            </div>
+            <div class="col-4">
+              <input type="number" class="form-control text-center" bind:value={durationMinutes} min="0" max="59" />
+              <div class="text-muted small text-center mt-1">Minuten</div>
+            </div>
+            <div class="col-4">
+              <input type="number" class="form-control text-center" bind:value={durationSeconds} min="0" max="59" />
+              <div class="text-muted small text-center mt-1">Sekunden</div>
+            </div>
+          </div>
+        </div>
     
-    <!-- Tags selection -->
-    <div class="activity-label">Tags:
-      <div class="tags-container">
-        {#each availableTags as tag}
-          <button 
-            type="button" 
-            class="tag-chip {selectedTags.includes(tag._id) ? 'selected' : ''}"
-            on:click={() => toggleTag(tag._id)}
-          >
-            {tag.name}
+        <div class="mb-4">
+          <span class="form-label fw-semibold d-block">Tags</span>
+          <div class="d-flex flex-wrap gap-2">
+            {#each availableTags as tag}
+              <button 
+                type="button" 
+                class="btn btn-sm {selectedTags.includes(tag._id) ? 'btn-primary' : 'btn-outline-secondary'}"
+                on:click={() => toggleTag(tag._id)}
+              >
+                {tag.name}
+              </button>
+            {/each}
+            {#if availableTags.length === 0}
+              <span class="text-muted">Keine Tags verfügbar</span>
+            {/if}
+          </div>
+          {#each selectedTags as tagId}
+            <input type="hidden" name="tags" value={tagId} />
+          {/each}
+        </div>
+    
+        <div class="d-flex gap-2">
+          <a href="/activities" class="btn btn-secondary flex-grow-1">
+            <i class="bi bi-x-lg me-1"></i>Abbrechen
+          </a>
+          <button type="submit" class="btn btn-dark flex-grow-1" disabled={isSubmitting}>
+            <i class="bi bi-save me-1"></i>{isSubmitting ? 'Speichern...' : 'Speichern'}
           </button>
-        {/each}
-        {#if availableTags.length === 0}
-          <span class="no-tags">Keine Tags verfügbar</span>
-        {/if}
-      </div>
-      <!-- Hidden inputs for selected tags -->
-      {#each selectedTags as tagId}
-        <input type="hidden" name="tags" value={tagId} />
-      {/each}
+        </div>
+      </form>
     </div>
-    
-    <div class="button-group">
-      <a href="/activities" class="activity-btn activity-btn-cancel">Abbrechen</a>
-      <button class="activity-btn" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Speichern...' : 'Speichern'}
-      </button>
-    </div>
-  </form>
+  </div>
 </div>
 
-<style>
-/* Notification styles */
-.notification-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1050;
-  min-width: 300px;
-  animation: slideIn 0.3s ease-out;
-}
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 1.25rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.alert-success {
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
-}
-
-.alert-danger {
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-}
-
-.btn-close {
-  background: transparent;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  margin-left: auto;
-  opacity: 0.5;
-  padding: 0;
-  line-height: 1;
-}
-
-.btn-close:hover {
-  opacity: 1;
-}
-
-.btn-close::before {
-  content: '×';
-}
-
-/* Duration inputs styles */
-.duration-inputs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.duration-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.duration-field .activity-input {
-  margin-top: 0;
-  text-align: center;
-  font-size: 1rem;
-  padding: 0.6rem;
-}
-
-.duration-label {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #999;
-  font-weight: 500;
-}
-
-/* Tags styles */
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.tag-chip {
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tag-chip:hover {
-  background: #e0e0e0;
-}
-
-.tag-chip.selected {
-  background: #e3f2fd;
-  border-color: #1565c0;
-  color: #1565c0;
-}
-
-.no-tags {
-  color: #999;
-  font-size: 0.9rem;
-}
-
-.activity-edit-card {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 2rem 2rem 1.5rem 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-}
-.activity-edit-card h1 {
-  color: #1a1a1a;
-  font-size: 1.4rem;
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-.activity-label {
-  display: block;
-  color: #666;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-.activity-input {
-  display: block;
-  width: 100%;
-  margin-top: 0.3rem;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #f9f9f9;
-  color: #222;
-  transition: border 0.2s;
-}
-.activity-input:focus {
-  outline: none;
-  border-color: #2196f3;
-}
-.activity-btn {
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.8rem 1.2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: background 0.2s;
-}
-.activity-btn:hover {
-  background: #2196f3;
-}
-.button-group {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-.activity-btn-cancel {
-  background: #f0f0f0;
-  color: #1a1a1a;
-  text-decoration: none;
-  text-align: center;
-}
-.activity-btn-cancel:hover {
-  background: #e0e0e0;
-}
-@media (max-width: 600px) {
-  .activity-edit-card {
-    padding: 1rem;
-  }
-}
-</style>
