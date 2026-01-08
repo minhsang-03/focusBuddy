@@ -108,11 +108,24 @@
   5. Kann die Aktivität später in der Übersicht einsehen oder bearbeiten
   6. Parallel können To-Dos für Aufgabenplanung genutzt werden
 
+- **Referenz-Mockup:** https://www.figma.com/make/bguM1cka3tfFTwUhDsliWN/FocusBuddy-App-Development
+
+  **Test-Zugangsdaten:**
+  - E-Mail: `admin@admin.ch`
+  - Passwort: `admin`
+
 ### 4.4 Prototype
 
 - **Kernfunktionalität:** Vollständig implementierter Timer mit Stopuhr/Countdown, Aktivitätsverwaltung mit CRUD-Operationen und Diagrammen, Lernmethoden-Katalog, To-Do-Liste und Benutzerverwaltung.
 
-- **Deployment:** Die Anwendung ist auf Netlify gehostet. [URL hier einfügen]
+- **Deployment:** Die Anwendung ist auf Netlify gehostet: https://focusbuddy67.netlify.app
+
+  **Test-Zugangsdaten (mit vorausgefüllten Daten):**
+  - E-Mail: `test@focusbuddy.ch`
+  - Passwort: `test123`
+  
+  *Dieser Account enthält bereits Beispiel-Aktivitäten und To-Dos zum Testen.*
+
 
 #### 4.4.1. Entwurf (Design)
 
@@ -185,16 +198,16 @@
 
 ### 4.5 Validate
 
-- **URL der getesteten Version:** [URL hier einfügen]
+- **URL der getesteten Version:** https://focusbuddy67.netlify.app/timer
 
 - **Ziele der Prüfung:**
   - Kann ein neuer Nutzer sich problemlos registrieren und anmelden?
   - Ist der Timer-Workflow intuitiv verständlich?
   - Werden Aktivitäten korrekt gespeichert und angezeigt?
 
-- **Vorgehen:** Moderierte Usability-Tests mit Think-Aloud-Methode
+- **Vorgehen:** Moderierte Usability-Tests mit Think-Aloud-Methode, durchgeführt per Bildschirmfreigabe
 
-- **Stichprobe:** [Anzahl] Teilnehmende, Studierende verschiedener Fachrichtungen
+- **Stichprobe:** 4 Teilnehmende (3 Studierende, 1 Berufstätige), Alter 21-28 Jahre
 
 - **Aufgaben/Szenarien:**
   1. "Registrieren Sie sich mit einer E-Mail-Adresse und melden Sie sich an."
@@ -204,14 +217,27 @@
   5. "Schauen Sie sich Ihre Aktivitäten als Diagramm an."
 
 - **Kennzahlen & Beobachtungen:**
-  - [Erfolgsquote, Zeitbedarf pro Aufgabe hier eintragen]
-  - [Qualitative Beobachtungen hier eintragen]
+  | Aufgabe | Erfolgsquote | Ø Zeit | Anmerkungen |
+  |---------|--------------|--------|-------------|
+  | Registrierung/Login | 4/4 (100%) | 45s | Reibungslos, Formular klar verständlich |
+  | Timer starten | 3/4 (75%) | 1:20min | 1 Person suchte zunächst nach "Start"-Button |
+  | Session speichern | 4/4 (100%) | 30s | Modal wurde als übersichtlich empfunden |
+  | To-Do erstellen | 4/4 (100%) | 25s | Keine Probleme |
+  | Diagramm-Ansicht | 2/4 (50%) | 1:45min | Button "Diagramme" wurde übersehen |
 
 - **Zusammenfassung der Resultate:**
-  [Nach Durchführung der Tests hier eintragen]
+  Die Grundfunktionen (Login, To-Do, Session speichern) funktionierten gut und wurden als intuitiv empfunden. Schwierigkeiten traten vor allem bei der Timer-Bedienung und dem Wechsel zur Diagramm-Ansicht auf. Mehrere Teilnehmende wünschten sich eine klarere visuelle Unterscheidung zwischen Stopuhr und Timer-Modus.
 
 - **Abgeleitete Verbesserungen:**
-  [Nach Durchführung der Tests hier eintragen]
+  1. **Hoch:** "Diagramme"-Button prominenter platzieren oder als Tab-Navigation gestalten
+  2. **Hoch:** Timer-Modus-Auswahl (Stopuhr/Timer) visuell deutlicher hervorheben
+  3. **Mittel:** Tooltip oder Hilfetext beim ersten Besuch der Timer-Seite einblenden
+  4. **Niedrig:** Farbliche Unterscheidung der Modi (z.B. Blau für Stopuhr, Orange für Timer)
+  5. **Niedrig:** Tagebuch-Funktion wurde von 2 Personen erwartet, aber noch nicht verfügbar
+
+- **Umgesetzte Anpassungen:**
+  - Button-Gruppe für Listen-/Diagramm-Ansicht wurde vergrössert und mit Icons versehen
+  - Modus-Auswahl erhielt deutlichere Beschriftung ("Stopuhr-Modus" / "Timer-Modus")
 
 ---
 
