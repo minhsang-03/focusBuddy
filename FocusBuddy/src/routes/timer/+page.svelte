@@ -159,6 +159,22 @@
           timeSeconds = inputMinutes * 60;
         }
       }
+    } else {
+      // "Keine" ausgewählt → Zeit auf 0 zurücksetzen
+      if (!isRunning) {
+        inputMinutes = 0;
+        inputSeconds = 0;
+        timeSeconds = 0;
+      }
+    }
+  }
+
+  function onModeChange() {
+    // Bei Modus-Wechsel Zeit auf 0 zurücksetzen
+    if (!isRunning) {
+      inputMinutes = 0;
+      inputSeconds = 0;
+      timeSeconds = 0;
     }
   }
 
@@ -287,7 +303,7 @@
       <div class="card h-100">
         <div class="card-body text-start">
           <label for="mode" class="form-label fw-semibold">Timer-Modus</label>
-          <select id="mode" class="form-select" bind:value={selectedMode} disabled={selectedMethod !== ''}>
+          <select id="mode" class="form-select" bind:value={selectedMode} on:change={onModeChange} disabled={selectedMethod !== ''}>
             <option value="Stopuhr">Stopuhr</option>
             <option value="Timer">Timer</option>
           </select>
