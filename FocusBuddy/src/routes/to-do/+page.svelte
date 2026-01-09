@@ -87,9 +87,13 @@
   <p class="text-muted mb-4">Organisieren Sie Ihre Aufgaben</p>
 
   {#if !data.user}
-    <div class="login-message">
-      <p>Bitte melden Sie sich an, um Ihre To-Do-Liste zu nutzen.</p>
-      <a href="/profil" class="btn-login-link">Zur Anmeldung</a>
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <p class="text-muted mb-3">Bitte melden Sie sich an, um Ihre To-Do-Liste zu nutzen.</p>
+        <a href="/profil" class="btn btn-dark">
+          <i class="bi bi-person me-2"></i>Zur Anmeldung
+        </a>
+      </div>
     </div>
   {:else}
     <!-- Header mit Button und Sortierung -->

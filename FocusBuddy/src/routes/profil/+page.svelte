@@ -28,7 +28,7 @@
           {getInitial(user.email)}
         </div>
         <div>
-          <h5 class="mb-1">{user.name}</h5>
+          <h5 class="mb-1">{user.name || user.username || 'Kein Name'}</h5>
           <p class="text-muted mb-0">{user.email}</p>
         </div>
       </div>
@@ -45,7 +45,7 @@
           <label for="name" class="form-label fw-semibold">Name</label>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input id="name" type="text" name="name" value={user.name} placeholder="Ihr Name" class="form-control" />
+            <input id="name" type="text" name="name" value={user.name || user.username || ''} placeholder="Ihr Name" class="form-control" />
           </div>
         </div>
 

@@ -100,6 +100,7 @@ export async function createUser(data) {
   const collection = db.collection('users');
   const doc = {
     username: data.username || '',
+    name: data.username || '', // Speichere auch als 'name' für Profil-Anzeige
     email: data.email || '',
     passwordHash: data.passwordHash || '',
     createdAt: new Date(),
