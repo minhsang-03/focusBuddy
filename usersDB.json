@@ -1,7 +1,0 @@
-{
-  "_id": "ObjectId('...')",
-  "email": "example@mail.com",
-  "passwordHash": "...", 
-  "username": "MaxStudent",
-  "createdAt": "2025-02-01T10:00:00Z"
-}

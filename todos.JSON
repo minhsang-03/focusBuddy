@@ -1,9 +1,0 @@
-{
-  "_id": "ObjectId('...')",
-  "userId": "ObjectId('...')",
-  "text": "Projektarbeit für die Schule",
-  "priority": "high",
-  "dueDate": "2025-02-01",
-  "isDone": false,
-  "createdAt": "2025-01-14T14:20:00Z"
-}

@@ -7,18 +7,22 @@
   <div class="card-body">
     <div class="text-center mb-3">
       {#if method.icon}
-        <i class="bi {method.icon} display-5" style:color={method.iconColor || '#6b7280'}></i>
+        <div class="icon-circle mx-auto">
+          <i class="bi {method.icon}"></i>
+        </div>
       {:else}
-        <span class="display-5">📘</span>
+        <div class="icon-circle mx-auto">
+          <span>📘</span>
+        </div>
       {/if}
     </div>
-    <h5 class="card-title">{method.name}</h5>
+    <h5 class="card-title text-center">{method.name}</h5>
     <p class="card-text text-muted">{method.description || ''}</p>
 
     {#if method.steps && method.steps.length > 0}
       <div class="mb-3">
         <strong class="small">So funktioniert's:</strong>
-        <ol class="small text-muted mt-1 mb-0 ps-3">
+        <ol class="small text-muted mt-1 mb-0">
           {#each method.steps as step}
             <li>{step}</li>
           {/each}
@@ -39,3 +43,21 @@
     </div>
   </div>
 </div>
+
+<style>
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e7f1ff;
+  }
+  
+  .icon-circle i,
+  .icon-circle span {
+    font-size: 2.5rem;
+    color: #0d6efd;
+  }
+</style>
