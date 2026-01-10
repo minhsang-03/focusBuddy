@@ -60,14 +60,14 @@
 - **Akzeptanzkriterien:**
   - Nutzende können sich registrieren und anmelden
   - Der Timer kann gestartet, pausiert und beendet werden
-  - Nach Beenden einer Session wird die Aktivität gespeichert
+  - Nach Beenden einer Session wird die Aktivität gespeichert, wenn der User angemeldet ist
   - Aktivitäten können in Listen- und Diagrammansicht angezeigt werden
   - To-Dos können erstellt, bearbeitet, als erledigt markiert und gelöscht werden
   - Lernmethoden werden angezeigt und können im Timer angewendet werden
 
 - **Erweiterungen:** 
   - Tagebuch-Funktion (in Entwicklung)
-  - Tag-System für Aktivitäten zur besseren Kategorisierung
+  - Tag-System hinzufügen für Aktivitäten zur besseren Kategorisierung
 
 ---
 
@@ -152,11 +152,11 @@
 #### 4.4.2. Umsetzung (Technik)
 
 - **Technologie-Stack:**
-  - **Framework:** SvelteKit mit Svelte 5
+  - **Framework:** SvelteKit
   - **Styling:** Bootstrap 5.3.8 (CDN), Bootstrap Icons 1.11.3
   - **Datenbank:** MongoDB (Cloud-Hosting)
   - **Visualisierung:** Chart.js für Diagramme
-  - **Deployment:** Netlify mit Adapter
+  - **Deployment:** Netlify
 
 - **Tooling:**
   - Visual Studio Code als IDE
@@ -186,14 +186,14 @@
   ```
 
 - **Daten & Schnittstellen:**
-  - MongoDB Collections: `users`, `todos`, `activities`, `learningMethods`, `tags`
+  - MongoDB Collections: `users`, `todos`, `activities`, `learningMethods`, `tags`, `(habits)`, `(journalEntries)`
+    - *Collections in Klammern existieren in der Datenbank, werden aber in diesem Projekt noch nicht verwendet*
   - Authentifizierung über Cookies (Session-basiert)
   - Passwort-Hashing mit Node.js crypto (scryptSync)
   - SvelteKit Form Actions für serverseitige Verarbeitung
 
 - **Besondere Entscheidungen:**
   - CDN für Bootstrap statt lokaler Installation (schnelleres Setup, einfachere Updates)
-  - Keine separate Backend-API – SvelteKit Server-Funktionen decken alle Anforderungen
   - Chart.js client-seitig für Diagramme, um Server-Last zu reduzieren
 
 ### 4.5 Validate
@@ -205,39 +205,43 @@
   - Ist der Timer-Workflow intuitiv verständlich?
   - Werden Aktivitäten korrekt gespeichert und angezeigt?
 
-- **Vorgehen:** Moderierte Usability-Tests mit Think-Aloud-Methode, durchgeführt per Bildschirmfreigabe
+- **Vorgehen:** Moderierte Usability-Tests mit Think-Aloud-Methode, durchgeführt in der Fachhochscule und zuhause per Demo
 
-- **Stichprobe:** 4 Teilnehmende (3 Studierende, 1 Berufstätige), Alter 21-28 Jahre
+- **Stichprobe:** 4 Teilnehmende (3 Studierende, 1 Berufstätige (Schwester)), Alter 21-26 Jahre
 
 - **Aufgaben/Szenarien:**
   1. "Registrieren Sie sich mit einer E-Mail-Adresse und melden Sie sich an."
   2. "Starten Sie einen Timer für 25 Minuten mit der Pomodoro-Methode."
-  3. "Beenden Sie die Session und speichern Sie sie mit einem passenden Titel."
+  3. "Beenden Sie die Session und speichern Sie sie mit einem passenden Titel, Tags und Beschreibung."
   4. "Erstellen Sie eine neue Aufgabe in der To-Do-Liste."
-  5. "Schauen Sie sich Ihre Aktivitäten als Diagramm an."
+  5. "Schauen Sie sich Ihre Aktivitäten an und bearbeite diese."
+  6. "Lösche die Aktivität und logge dich aus."
 
 - **Kennzahlen & Beobachtungen:**
-  | Aufgabe | Erfolgsquote | Ø Zeit | Anmerkungen |
-  |---------|--------------|--------|-------------|
-  | Registrierung/Login | 4/4 (100%) | 45s | Reibungslos, Formular klar verständlich |
-  | Timer starten | 3/4 (75%) | 1:20min | 1 Person suchte zunächst nach "Start"-Button |
-  | Session speichern | 4/4 (100%) | 30s | Modal wurde als übersichtlich empfunden |
-  | To-Do erstellen | 4/4 (100%) | 25s | Keine Probleme |
-  | Diagramm-Ansicht | 2/4 (50%) | 1:45min | Button "Diagramme" wurde übersehen |
+  | Aufgabe               | Anmerkungen (Beobachtung)                                                                   |
+  |-----------------------|---------------------------------------------------------------------------------------------|
+  | Registrierung/Login   | Reibungslos, Formular klar verständlich                                                     |
+  | Timer starten         | 1 Person verstand nicht ganz wie die lernmethode funktionieren                              |
+  | Session speichern     | Modal wurde als übersichtlich empfunden, jedoch gab es keine Benachritigung beim Speichern. |
+  | To-Do erstellen       | Keine Probleme                                                                              |
+  | Diagramm-Ansicht      | Button "Diagramme" wurde übersehen                                                          |
 
 - **Zusammenfassung der Resultate:**
-  Die Grundfunktionen (Login, To-Do, Session speichern) funktionierten gut und wurden als intuitiv empfunden. Schwierigkeiten traten vor allem bei der Timer-Bedienung und dem Wechsel zur Diagramm-Ansicht auf. Mehrere Teilnehmende wünschten sich eine klarere visuelle Unterscheidung zwischen Stopuhr und Timer-Modus.
+  Die Grundfunktionen (Login, To-Do, Session speichern) funktionierten insgesamt gut und wurden als intuitiv wahrgenommen. Es traten keine grundlegenden Bedienprobleme auf; jedoch wurden einige Bugs und Inkonsistenzen festgestellt: Lernmethoden funktionierten teilweise nicht wie erwartet; beim Wechsel der Lernmethode wurde der Timer nicht zurückgesetzt und zeigte weiterhin die vorherige Minute; nach dem Speichern einer Session fehlte eine Bestätigung/Benachrichtigung. Beim Design gab es Uneinheiten: Bootstrap-Icons wurden nicht durchgehend verwendet und einzelne Seiten wichen im Erscheinungsbild voneinander ab. Auf Basis dieser Beobachtungen wurden entsprechende Verbesserungen empfohlen.
 
 - **Abgeleitete Verbesserungen:**
-  1. **Hoch:** "Diagramme"-Button prominenter platzieren oder als Tab-Navigation gestalten
-  2. **Hoch:** Timer-Modus-Auswahl (Stopuhr/Timer) visuell deutlicher hervorheben
-  3. **Mittel:** Tooltip oder Hilfetext beim ersten Besuch der Timer-Seite einblenden
+  1. **Hoch:** Einheitliches Design (konsistente Nutzung von Bootstrap-Icons, vereinheitlichte Seitenlayouts)
+  2. **Hoch:** Fehlerbehebungen bei Lernmethoden und Timer-Reset beim Moduswechsel
+  3. **Mittel:** Visuelles Feedback/Bestätigung nach dem Speichern einer Session; Tooltip/Hilfetext beim ersten Besuch der Timer-Seite
   4. **Niedrig:** Farbliche Unterscheidung der Modi (z.B. Blau für Stopuhr, Orange für Timer)
-  5. **Niedrig:** Tagebuch-Funktion wurde von 2 Personen erwartet, aber noch nicht verfügbar
+  5. **Niedrig:** Tagebuch-Funktion (erwartet, aber noch nicht verfügbar)
 
 - **Umgesetzte Anpassungen:**
-  - Button-Gruppe für Listen-/Diagramm-Ansicht wurde vergrössert und mit Icons versehen
-  - Modus-Auswahl erhielt deutlichere Beschriftung ("Stopuhr-Modus" / "Timer-Modus")
+  - Einheitliches Design: konsistente Nutzung von Bootstrap-Icons, vereinheitlichte Seitenlayouts
+  - Visuelle Bestätigung nach dem Speichern einer Session (Toast/Benachrichtigung)
+  - Timer wird beim Wechsel der Lernmethode zurückgesetzt
+  - Modus-Auswahl klarer und prominenter dargestellt ("Stopuhr" / "Timer")
+  - Button-Gruppe für Listen-/Diagramm-Ansicht vergrössert und eindeutiger beschriftet
 
 ---
 
@@ -271,41 +275,38 @@
 ## 7. KI‑Deklaration
 
 ### Eingesetzte KI‑Werkzeuge
-- GitHub Copilot (in VS Code)
+- GitHub Copilot und Claude Opus(in VS Code)
 - ChatGPT / Claude für punktuelle Fragen
 
 ### Zweck & Umfang
 KI wurde unterstützend eingesetzt für:
 - **Code-Vorschläge:** Autovervollständigung bei repetitiven Mustern (z.B. CRUD-Operationen)
-- **Debugging:** Hilfe bei der Fehlersuche und -behebung
+- **Debugging:** Hilfe bei der Fehlersuche und -behebung, vor allem bei Type-Fehlern (null, any-Variablen)
 - **Styling:** Unterstützung bei Bootstrap-Klassen und CSS
-- **Dokumentation:** Strukturierung dieser README
+- **Datenbank (db.js):** Claude unterstützte bei der Implementierung, da dieses Thema nicht im Lehrplan behandelt wurde; alle Änderungen wurden manuell getestet und verifiziert
 
-Der Einsatz erfolgte stets mit kritischer Überprüfung. Generierte Vorschläge wurden auf Korrektheit geprüft und bei Bedarf angepasst.
+
+Der Einsatz erfolgte stets mit kritischer Überprüfung. Generierte Vorschläge wurden auf Korrektheit geprüft und bei Bedarf angepasst oder verworfen.
 
 ### Art der Beiträge
-- Teile der Datenbankfunktionen (db.js) entstanden mit Copilot-Unterstützung
+- Datenbankfunktionen (db.js) entstanden mit Copilot
 - Bootstrap-Styling wurde teilweise mit KI-Hilfe optimiert
-- Diese Dokumentation wurde mit KI-Unterstützung strukturiert
 
 ### Eigene Leistung (Abgrenzung)
 - Konzeption und Architektur der Anwendung
 - Design-Entscheidungen (Navigation, Seitenstruktur)
 - Implementierung der Geschäftslogik (Timer-Funktionalität, Authentifizierung)
-- Datenbankmodell und -schema
+- Datenbankmodell und -schema (Mongodb)
 - Testing und Qualitätssicherung
 - Integration und Zusammenführung aller Komponenten
 
 ### Reflexion
-- **Nutzen:** KI beschleunigte repetitive Aufgaben und half bei der Recherche von API-Details
-- **Grenzen:** Komplexe Logik (z.B. Timer-State-Management) erforderte eigenes Verständnis; KI-Vorschläge waren nicht immer optimal
-- **Qualitätssicherung:** Alle KI-generierten Codeabschnitte wurden manuell getestet und bei Bedarf überarbeitet
+- **Nutzen:** KI beschleunigte repetitive Aufgaben und unterstützte bei der Recherche von API-Details und Dokumentation. Besonders hilfreich war die KI-Unterstützung bei Themen, die nicht im Lehrplan behandelt wurden (z.B. Datenbankimplementierung in MongoDB und Fehlerbehebung).
+- **Grenzen:** Komplexe Logik (z.B. Timer-State-Management, Zustandsverwaltung) erforderte eigenes Verständnis und kritische Überprüfung. KI-Vorschläge waren nicht immer optimal und führten teilweise zu unerwarteten Fehlern, die ein Überdenken oder komplettes Redesign erforderten.
+- **Qualitätssicherung:** Alle KI-generierten Codeabschnitte wurden gründlich getestet und ggf. überarbeitet oder neu geschrieben, um sicherzustellen, dass die Anforderungen erfüllt werden.
 
 ---
 
 ## 8. Anhang [Optional]
-
-- **Testskript & Materialien:** [Link/Datei hier einfügen]
-- **Rohdaten/Auswertung:** [Link/Datei hier einfügen]
 
 ---
