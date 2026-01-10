@@ -8,10 +8,8 @@
   /** @type {any} */
   const data = props.data || {};
   
-  // Check if current path matches
   /** @param {string} href */
   function isActive(href) {
-    // @ts-ignore
     const currentPath = $page.url.pathname;
     if (href === '/') {
       return currentPath === '/';

@@ -7,7 +7,6 @@ export async function load({ parent }) {
   const parentData = await parent();
   const user = parentData.user;
 
-  // If already logged in, redirect to timer
   if (user) {
     throw redirect(302, '/timer');
   }
@@ -26,11 +25,9 @@ export const actions = {
       return { success: false, error: 'Email und Passwort sind erforderlich' };
     }
 
-    /** @type {any} */
     let user;
     
     try {
-      // Find user by email
       user = await getUserByEmail(email);
     } catch (error) {
       console.error('Login error:', error);
@@ -41,30 +38,25 @@ export const actions = {
       return { success: false, error: 'Email oder Passwort ist falsch' };
     }
 
-    // Get the stored password hash
     const storedPassword = user.passwordHash || '';
 
     if (!storedPassword) {
       return { success: false, error: 'Email oder Passwort ist falsch' };
     }
 
-    // Parse salt and hash from stored format "salt:hash"
     const [salt, hash] = storedPassword.split(':');
 
     if (!salt || !hash) {
       return { success: false, error: 'Email oder Passwort ist falsch' };
     }
 
-    // Hash the provided password with the stored salt
     const key = scryptSync(password, salt, 64);
     const hashedPassword = Buffer.from(key).toString('hex');
 
-    // Compare hashes
     if (hash !== hashedPassword) {
       return { success: false, error: 'Email oder Passwort ist falsch' };
     }
 
-    // Set cookie and redirect
     cookies.set('userId', String(user._id), {
       httpOnly: true,
       path: '/',

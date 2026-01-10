@@ -1,19 +1,14 @@
 <script>
-  /**
-   * Returns tag name if tag is object, else string
-   * @param {any} tag
-   * @returns {string}
-   */
+  import { onMount } from 'svelte';
+  import Chart from 'chart.js/auto';
+
   function getTagName(tag) {
     if (typeof tag === 'object' && tag !== null && 'name' in tag) {
       return tag.name;
     }
     return String(tag);
   }
-  import { onMount } from 'svelte';
-  import Chart from 'chart.js/auto';
 
-  // Notification state
   let showNotification = false;
   let notificationType = 'success';
   let notificationMessage = '';

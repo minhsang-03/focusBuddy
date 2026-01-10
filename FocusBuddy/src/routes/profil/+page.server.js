@@ -4,17 +4,14 @@ import { randomBytes, scryptSync } from 'crypto';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ cookies }) {
-  // Get current user ID from cookie (set by login/register)
   const userId = cookies.get('userId');
   
   if (!userId) {
-    // Redirect to login if not authenticated
     throw redirect(302, '/login');
   }
 
   const user = await getUser(userId);
 
-  // If user doesn't exist, redirect to login
   if (!user) {
     throw redirect(302, '/login');
   }
@@ -66,18 +63,15 @@ export const actions = {
       return fail(400, { error: 'New passwords do not match' });
     }
 
-    // TODO: Implement password verification and hashing
-    // For now, just validate that new password is different
     if (currentPassword === newPassword) {
       return fail(400, { error: 'New password must be different from current password' });
     }
 
     try {
-      // Verify current password
       const user = await getUser(userId);
       if (!user) return fail(404, { error: 'User not found' });
       
-      const storedPassword = /** @type {any} */ (user).passwordHash || '';
+      const storedPassword = user.passwordHash || '';
       if (storedPassword) {
         const [salt, hash] = storedPassword.split(':');
         if (salt && hash) {
@@ -89,7 +83,6 @@ export const actions = {
         }
       }
 
-      // Hash new password
       const newSalt = randomBytes(16).toString('hex');
       const newKey = scryptSync(String(newPassword), newSalt, 64);
       const newHash = Buffer.from(newKey).toString('hex');

@@ -3,11 +3,9 @@ import { getJournalEntries, createJournalEntry } from '$lib/db.js';
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ parent }) {
   const parentData = await parent();
-  const user = /** @type {any} */ (parentData).user;
+  const user = parentData.user;
   const allEntries = await getJournalEntries();
-  
-  // Filter to only show current user's entries
-  const entries = allEntries.filter(e => /** @type {any} */ (e).userId === user?._id);
+  const entries = allEntries.filter(e => e.userId === user?._id);
   return { entries, user };
 }
 
@@ -15,7 +13,7 @@ export async function load({ parent }) {
 export const actions = {
   default: async ({ request, parent }) => {
     const parentData = await parent();
-    const user = /** @type {any} */ (parentData).user;
+    const user = parentData.user;
     const formData = await request.formData();
     const title = formData.get('title');
     const content = formData.get('content');

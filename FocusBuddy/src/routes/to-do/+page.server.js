@@ -3,11 +3,9 @@ import { getTodos, createTodo, updateTodo, deleteTodo } from '$lib/db.js';
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ parent }) {
   const parentData = await parent();
-  const user = /** @type {any} */ (parentData).user;
+  const user = parentData.user;
   const allTodos = await getTodos();
-  
-  // Filter to only show current user's todos
-  const todos = allTodos.filter(t => /** @type {any} */ (t).userId === user?._id);
+  const todos = allTodos.filter(t => t.userId === user?._id);
   return { todos, user };
 }
 
@@ -31,7 +29,7 @@ export const actions = {
         description, 
         priority, 
         completed: false, 
-        dueDate: dueDate ? new Date(/** @type {string} */ (dueDate)) : null, 
+        dueDate: dueDate ? new Date(dueDate) : null, 
         userId 
       });
       return { success: true };
@@ -58,7 +56,7 @@ export const actions = {
         title, 
         description, 
         priority, 
-        dueDate: dueDate ? new Date(/** @type {string} */ (dueDate)) : null 
+        dueDate: dueDate ? new Date(dueDate) : null 
       });
       return { success: true };
     } catch (error) {
@@ -84,7 +82,7 @@ export const actions = {
     const id = formData.get('id');
 
     try {
-      await deleteTodo(/** @type {string} */ (id));
+      await deleteTodo(id);
       return { success: true };
     } catch (error) {
       return { success: false, error: 'Fehler beim Löschen' };

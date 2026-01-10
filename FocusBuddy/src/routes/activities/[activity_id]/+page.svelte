@@ -18,12 +18,9 @@
     durationSeconds = totalSecs % 60;
   }
   
-  /** @type {string[]} */
-  let selectedTags = (activity.tags || []).map(/** @param {any} t */ t => typeof t === 'object' ? t._id : t);
-  /** @type {Array<{_id: string, name: string}>} */
-  let availableTags = /** @type {Array<{_id: string, name: string}>} */ (data.tags || []);
-  /** @type {Array<{_id: string, name: string}>} */
-  let learningMethods = /** @type {Array<{_id: string, name: string}>} */ (data.learningMethods || []);
+  let selectedTags = (activity.tags || []).map(t => typeof t === 'object' ? t._id : t);
+  let availableTags = data.tags || [];
+  let learningMethods = data.learningMethods || [];
 
   /**
    * @param {string} tagId

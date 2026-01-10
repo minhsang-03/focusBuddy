@@ -141,26 +141,24 @@
   }
 
   function onMethodChange() {
-    const method = data.learningMethods.find((m) => /** @type {any} */ (m)._id === selectedMethod);
+    const method = data.learningMethods.find(m => m._id === selectedMethod);
     if (method) {
-      const methodData = /** @type {any} */ (method);
-      if (methodData.type === 'stopwatch') {
+      if (method.type === 'stopwatch') {
         selectedMode = 'Stopuhr';
         if (!isRunning) {
           inputMinutes = 0;
           inputSeconds = 0;
           timeSeconds = 0;
         }
-      } else if (methodData.type === 'timer') {
+      } else if (method.type === 'timer') {
         selectedMode = 'Timer';
-        inputMinutes = methodData.defaultWorkMinutes || 25;
+        inputMinutes = method.defaultWorkMinutes || 25;
         inputSeconds = 0;
         if (!isRunning) {
           timeSeconds = inputMinutes * 60;
         }
       }
     } else {
-      // "Keine" ausgewählt → Zeit auf 0 zurücksetzen
       if (!isRunning) {
         inputMinutes = 0;
         inputSeconds = 0;
@@ -170,7 +168,6 @@
   }
 
   function onModeChange() {
-    // Bei Modus-Wechsel Zeit auf 0 zurücksetzen
     if (!isRunning) {
       inputMinutes = 0;
       inputSeconds = 0;
@@ -216,18 +213,17 @@
 
     const methodParam = $page.url.searchParams.get('method');
     if (methodParam) {
-      const method = data.learningMethods.find((m) => /** @type {any} */ (m)._id === methodParam);
+      const method = data.learningMethods.find(m => m._id === methodParam);
       if (method) {
         selectedMethod = methodParam;
-        const methodData = /** @type {any} */ (method);
-        if (methodData.type === 'stopwatch') {
+        if (method.type === 'stopwatch') {
           selectedMode = 'Stopuhr';
           inputMinutes = 0;
           inputSeconds = 0;
           timeSeconds = 0;
-        } else if (methodData.type === 'timer') {
+        } else if (method.type === 'timer') {
           selectedMode = 'Timer';
-          inputMinutes = methodData.defaultWorkMinutes || 25;
+          inputMinutes = method.defaultWorkMinutes || 25;
           inputSeconds = 0;
           timeSeconds = inputMinutes * 60;
         }

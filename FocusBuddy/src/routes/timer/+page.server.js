@@ -21,7 +21,6 @@ export const actions = {
     const data = await request.formData();
     const title = data.get('title')?.toString() || '';
     const description = data.get('description')?.toString() || '';
-    // Tags werden direkt als 'tags' Feld übergeben
     const tags = data.getAll('tags').map(id => id.toString()).filter(id => id.length === 24);
     const method = data.get('method')?.toString() || '';
     const durationSeconds = parseInt(data.get('durationSeconds')?.toString() || '0');

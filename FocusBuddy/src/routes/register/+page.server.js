@@ -19,26 +19,23 @@ export const actions = {
       return fail(400, { error: 'Passwörter stimmen nicht überein' });
     }
 
-    // check if email already exists
     const users = await getUsers();
-    const existing = users.find((u) => ((/** @type {{email?: string}} */ (u)).email || '').toLowerCase() === email);
+    const existing = users.find((u) => (u.email || '').toLowerCase() === email);
     if (existing) {
       return fail(400, { error: 'E-Mail ist bereits registriert' });
     }
 
-    // hash password with salt using scrypt
     const salt = randomBytes(16).toString('hex');
     const key = scryptSync(password, salt, 64);
     const hash = Buffer.from(key).toString('hex');
     const stored = `${salt}:${hash}`;
 
-    // create user
     const id = await createUser({ username: name, email, passwordHash: stored });
     const user = await getUser(id);
 
     if (!user) return fail(500, { error: 'Konnte Nutzer nicht anlegen' });
 
-    cookies.set('userId', ((/** @type {{_id?: string}} */ (user))._id || ''), { path: '/', httpOnly: true });
+    cookies.set('userId', (user._id || ''), { path: '/', httpOnly: true });
 
     throw redirect(302, '/timer?register=success');
   }
