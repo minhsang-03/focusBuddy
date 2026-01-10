@@ -80,7 +80,7 @@
 - **Zielgruppenverständnis:** Durch Gespräche mit Mitstudierenden wurden häufige Probleme identifiziert: fehlende Übersicht über die investierte Zeit, Schwierigkeiten bei der Anwendung von Lernmethoden und mangelnde Motivation durch fehlende Fortschrittsvisualisierung.
 
 - **Wesentliche Erkenntnisse:**
-  - Ein einfacher Timer reicht nicht aus – die Verbindung mit Lernmethoden schafft Mehrwert
+  - Ein einfacher Timer reicht nicht aus. Die Verbindung mit Lernmethoden schafft Mehrwert
   - Visualisierungen der investierten Zeit motivieren
   - Die Anwendung muss unkompliziert sein, damit sie tatsächlich genutzt wird
 
@@ -205,7 +205,7 @@
   - Ist der Timer-Workflow intuitiv verständlich?
   - Werden Aktivitäten korrekt gespeichert und angezeigt?
 
-- **Vorgehen:** Moderierte Usability-Tests mit Think-Aloud-Methode, durchgeführt in der Fachhochscule und zuhause per Demo
+- **Vorgehen:** Moderierte Usability-Tests mit Think-Aloud-Methode, durchgeführt in der Fachhochschule und zuhause per Demo
 
 - **Stichprobe:** 4 Teilnehmende (3 Studierende, 1 Berufstätige (Schwester)), Alter 21-26 Jahre
 
@@ -221,13 +221,13 @@
   | Aufgabe               | Anmerkungen (Beobachtung)                                                                   |
   |-----------------------|---------------------------------------------------------------------------------------------|
   | Registrierung/Login   | Reibungslos, Formular klar verständlich                                                     |
-  | Timer starten         | 1 Person verstand nicht ganz wie die lernmethode funktionieren                              |
-  | Session speichern     | Modal wurde als übersichtlich empfunden, jedoch gab es keine Benachritigung beim Speichern. |
+  | Timer starten         | 1 Person verstand nicht ganz, wie die Lernmethoden funktionieren                            |
+  | Session speichern     | Modal wurde als übersichtlich empfunden, jedoch gab es keine Benachrichtigung beim Speichern |
   | To-Do erstellen       | Keine Probleme                                                                              |
   | Diagramm-Ansicht      | Button "Diagramme" wurde übersehen                                                          |
 
 - **Zusammenfassung der Resultate:**
-  Die Grundfunktionen (Login, To-Do, Session speichern) funktionierten insgesamt gut und wurden als intuitiv wahrgenommen. Es traten keine grundlegenden Bedienprobleme auf; jedoch wurden einige Bugs und Inkonsistenzen festgestellt: Lernmethoden funktionierten teilweise nicht wie erwartet; beim Wechsel der Lernmethode wurde der Timer nicht zurückgesetzt und zeigte weiterhin die vorherige Minute; nach dem Speichern einer Session fehlte eine Bestätigung/Benachrichtigung. Beim Design gab es Uneinheiten: Bootstrap-Icons wurden nicht durchgehend verwendet und einzelne Seiten wichen im Erscheinungsbild voneinander ab. Auf Basis dieser Beobachtungen wurden entsprechende Verbesserungen empfohlen.
+  Die Grundfunktionen (Login, To-Do, Session speichern) funktionierten insgesamt gut und wurden als intuitiv wahrgenommen. Es traten keine grundlegenden Bedienprobleme auf; jedoch wurden einige Bugs und Inkonsistenzen festgestellt: Lernmethoden funktionierten teilweise nicht wie erwartet; beim Wechsel der Lernmethode wurde der Timer nicht zurückgesetzt und zeigte weiterhin die vorherige Minute; nach dem Speichern einer Session fehlte eine Bestätigung/Benachrichtigung. Beim Design gab es Uneinheitlichkeiten: Bootstrap-Icons wurden nicht durchgehend verwendet und einzelne Seiten wichen im Erscheinungsbild voneinander ab. Auf Basis dieser Beobachtungen wurden entsprechende Verbesserungen empfohlen.
 
 - **Abgeleitete Verbesserungen:**
   1. **Hoch:** Einheitliches Design (konsistente Nutzung von Bootstrap-Icons, vereinheitlichte Seitenlayouts)
@@ -281,9 +281,11 @@
 ### Zweck & Umfang
 KI wurde unterstützend eingesetzt für:
 - **Code-Vorschläge:** Autovervollständigung bei repetitiven Mustern (z.B. CRUD-Operationen)
-- **Debugging:** Hilfe bei der Fehlersuche und -behebung, vor allem bei Type-Fehlern (null, any-Variablen)
+- **Debugging:** Hilfe bei der Fehlersuche und -behebung
 - **Styling:** Unterstützung bei Bootstrap-Klassen und CSS
 - **Datenbank (db.js):** Claude unterstützte bei der Implementierung, da dieses Thema nicht im Lehrplan behandelt wurde; alle Änderungen wurden manuell getestet und verifiziert
+- **Cookies & Authentifizierung:** KI-Unterstützung bei der Implementierung der Session-basierten Authentifizierung mittels Cookies
+- **Passwort-Hashing:** KI-Unterstützung bei der Implementierung des sicheren Passwort-Hashings mit scrypt
 
 
 Der Einsatz erfolgte stets mit kritischer Überprüfung. Generierte Vorschläge wurden auf Korrektheit geprüft und bei Bedarf angepasst oder verworfen.
